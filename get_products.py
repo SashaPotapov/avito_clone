@@ -3,7 +3,6 @@ import requests
 import logging
 from bs4 import BeautifulSoup
 from time import sleep
-from random import randrange
 
 
 logging.basicConfig(filename='parser.log', level=logging.INFO)
@@ -21,10 +20,10 @@ def get_html(page=1):
         response.raise_for_status()
         return response.text
     except(requests.RequestException, ValueError):
-        logging.info(f'Ошибка {response.status_code}')
+        logging.error(f'Ошибка {response.status_code}')
         return False
     except Exception as er:
-        logging.info(er)
+        logging.error(er)
         return False
 
 def get_products_links():
@@ -36,62 +35,66 @@ def get_products_links():
         count_pages = int(soup.find('div', class_="pagination-root-2oCjZ").find_all('span', class_="pagination-item-1WyVp")[-2].text)
         
         links = []
-        for i in range(1, 2): # test 
+        for i in range(1, 3): # test 
             page = get_html(i)
             soup = BeautifulSoup(page, 'lxml')
             item_card = soup.find_all('div', class_="iva-item-content-m2FiN")
             for item in item_card:
                 link = f"https://www.avito.ru{item.find('div', class_='iva-item-titleStep-2bjuh').find('a').get('href')}"
                 links.append(link)
-                # sleep(randrange(5, 7))
         return links
     return False
 
 def get_product_html():
     '''Функция get_product_html возвращает список html-страниц по каждому товару категории'''
     links = get_products_links()
-
-    html_of_products = []
-    for link in links:
-        try:
-            response = requests.get(link, headers=headers)
-            response.raise_for_status()
-        except(requests.RequestException, ValueError):
-            logging.info(f'Ошибка {response.status_code}')
-            continue
-        except Exception as er:
-            logging.info(er)
-            continue
-        html_of_products.append(response.text)
-        sleep(randrange(5, 7))
-    return html_of_products
+    if links:
+        html_of_products = []
+        for link in links:
+            try:
+                response = requests.get(link, headers=headers)
+                response.raise_for_status()
+            except(requests.RequestException, ValueError):
+                logging.error(f'Ошибка {response.status_code}')
+                continue
+            except Exception as er:
+                logging.error(er)
+                continue
+            html_of_products.append(response.text)
+            sleep(5)
+        return html_of_products
+    return False
 
 def get_product_info():
     '''Функция get_product_info выводит информацию по каждому товару'''
     html_of_products = get_product_html()
+    if html_of_products:
+        for html in html_of_products:
+            soup = BeautifulSoup(html, 'lxml')
 
-    for html in html_of_products:
-        soup = BeautifulSoup(html, 'lxml')
+            name = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
+            id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
+            published = soup.find('div', class_="title-info-actions").find('div', class_="title-info-metadata-item-redesign").text.strip()
+            link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
+            price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
+            try:
+                address = soup.find('div', class_="item-view-block item-view-map js-item-view-map").find('span', class_="item-address__string").text.strip()
+            except AttributeError:
+                address = '' 
+            try:
+                description = soup.find('div', class_="item-description").text.strip()
+            except AttributeError:
+                description = ''
 
-        name = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
-        id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
-        published = soup.find('div', class_="title-info-actions").find('div', class_="title-info-metadata-item-redesign").text.strip()
-        link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
-        addres = soup.find('div', class_="item-view-block item-view-map js-item-view-map").find('span', class_="item-address__string").text.strip()
-        price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
-        try:
-            description = soup.find('div', class_="item-description").text.strip()
-        except AttributeError:
-            description = ''
-
-        print(name)
-        print(id)
-        print(published)
-        print(link_photo)
-        print(addres)
-        print(price)
-        print(description)
-        print('----------')
+            print(name)
+            print(id)
+            print(published)
+            print(link_photo)
+            print(address)
+            print(price)
+            print(description)
+            print('----------')
+    return False
      
 if __name__ == "__main__":
     get_product_info()
