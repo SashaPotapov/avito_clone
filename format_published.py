@@ -19,21 +19,26 @@ def format_published(date):
 
     date = date.split()
 
+    year = int(datetime.now().strftime('%Y'))
+    month = int(datetime.now().strftime('%m'))
     today = datetime.today().strftime('%d.%m.%Y')
     yesterday = (datetime.strptime(today, '%d.%m.%Y') - timedelta(1)).strftime('%d.%m.%Y')
 
     if date[0] == 'сегодня':
+        del date[1]
         date[0] = today
-        return ' '.join(date)
+        date = datetime.strptime(' '.join(date), '%d.%m.%Y %H:%M')
+        return date
     elif date[0] == 'вчера':
+        del date[1]
         date[0] = yesterday
-        return ' '.join(date)
+        date = datetime.strptime(' '.join(date), '%d.%m.%Y %H:%M')
+        return date
 
     if date[1] in months:
-        year = int(datetime.now().strftime('%Y'))
         month = int(months[date[1]])
         day = int(date[0])
         hours = int(date[3][:2])
         minutes = int(date[3][3:])
-        date = datetime(year, month, day, hours, minutes).strftime('%d.%m.%Y в %H:%M')
+        date = datetime(year, month, day, hours, minutes)
         return date
