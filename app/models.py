@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    avito_id = db.Column(db.Integer, unique=True)
+    avito_id = db.Column(db.String, unique=True)
     name = db.Column(db.String, nullable=False)
     published = db.Column(db.DateTime, nullable=False)
     link_photo = db.Column(db.String, nullable=False)
