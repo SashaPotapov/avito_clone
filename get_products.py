@@ -33,16 +33,18 @@ def get_products_links():
     if main_page:
         soup = BeautifulSoup(main_page, 'lxml')
         # Определяет количество страниц товаров данной категории
-        count_pages = int(soup.find('div', class_="pagination-root-2oCjZ").find_all('span', class_="pagination-item-1WyVp")[-2].text)
-        
+        try:
+            count_pages = int(soup.find('div', class_="pagination-root-2oCjZ").find_all('span', class_="pagination-item-1WyVp")[-2].text)
+        except AttributeError:
+            end_page = 1
+
         if count_pages > 5:
             end_page = 5
         else:
             end_page = count_pages
 
         links = []
-        # for i in range(1, end_page + 1):
-        for i  in range(1, end_page + 1):
+        for i in range(1, end_page + 1):
             page = get_html(i)
             soup = BeautifulSoup(page, 'lxml')
             item_card = soup.find_all('div', class_="iva-item-content-m2FiN")
