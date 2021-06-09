@@ -72,7 +72,7 @@ def get_product_html():
                 logging.error(er)
                 continue
             html_of_products.append(response.text)
-            sleep(randrange(3, 6))
+            sleep(randrange(5, 7))
         return html_of_products
     return False
 
@@ -100,8 +100,8 @@ def get_product_info():
                 description = soup.find('div', class_="item-description").text.strip()
             except AttributeError:
                 description = ''
-
-        save_product_info(name, id, published, link_photo, address, price, description, category)
+        print(name, id, published, link_photo, address, price, description, category)
+        #save_product_info(name, id, published, link_photo, address, price, description, category)
 
     logging.error('Ошибка работы парсера')
     return None
