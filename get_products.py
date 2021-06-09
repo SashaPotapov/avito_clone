@@ -1,8 +1,9 @@
-from os import name
 import requests
 import logging
 from bs4 import BeautifulSoup
 from time import sleep
+from random import randrange
+from format_published import format_published
 
 
 logging.basicConfig(filename='parser.log', level=logging.INFO)
@@ -34,8 +35,14 @@ def get_products_links():
         # Определяет количество страниц товаров данной категории
         count_pages = int(soup.find('div', class_="pagination-root-2oCjZ").find_all('span', class_="pagination-item-1WyVp")[-2].text)
         
+        if count_pages > 5:
+            end_page = 5
+        else:
+            end_page = count_pages
+
         links = []
-        for i in range(1, 3): # test 
+        # for i in range(1, end_page + 1):
+        for i  in range(1, end_page + 1):
             page = get_html(i)
             soup = BeautifulSoup(page, 'lxml')
             item_card = soup.find_all('div', class_="iva-item-content-m2FiN")
@@ -61,7 +68,7 @@ def get_product_html():
                 logging.error(er)
                 continue
             html_of_products.append(response.text)
-            sleep(5)
+            sleep(randrange(3, 6))
         return html_of_products
     return False
 
@@ -74,9 +81,13 @@ def get_product_info():
 
             name = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
             id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
+
             published = soup.find('div', class_="title-info-actions").find('div', class_="title-info-metadata-item-redesign").text.strip()
+            published = format_published(published)
+
             link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
             price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
+            category = soup.find('div', class_="item-navigation").find_all('span', itemprop="itemListElement")[-1].find('span').text.strip()
             try:
                 address = soup.find('div', class_="item-view-block item-view-map js-item-view-map").find('span', class_="item-address__string").text.strip()
             except AttributeError:
@@ -86,6 +97,7 @@ def get_product_info():
             except AttributeError:
                 description = ''
 
+            print(category)
             print(name)
             print(id)
             print(published)
@@ -94,7 +106,8 @@ def get_product_info():
             print(price)
             print(description)
             print('----------')
-    return False
+    logging.error('Ошибка работы парсера')
+    return None
      
 if __name__ == "__main__":
     get_product_info()
