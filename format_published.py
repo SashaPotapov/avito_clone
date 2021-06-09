@@ -20,7 +20,6 @@ def format_published(date):
     date = date.split()
 
     year = int(datetime.now().strftime('%Y'))
-    month = int(datetime.now().strftime('%m'))
     today = datetime.today().strftime('%d.%m.%Y')
     yesterday = (datetime.strptime(today, '%d.%m.%Y') - timedelta(1)).strftime('%d.%m.%Y')
 
