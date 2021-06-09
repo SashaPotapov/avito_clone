@@ -5,6 +5,8 @@ from time import sleep
 from random import randrange
 from format_published import format_published
 
+from app.models import db, Products
+
 
 logging.basicConfig(filename='parser.log', level=logging.INFO)
 
@@ -99,17 +101,18 @@ def get_product_info():
             except AttributeError:
                 description = ''
 
-            print(category)
-            print(name)
-            print(id)
-            print(published)
-            print(link_photo)
-            print(address)
-            print(price)
-            print(description)
-            print('----------')
+        save_product_info(name, id, published, link_photo, address, price, description, category)
+
     logging.error('Ошибка работы парсера')
     return None
-     
+
+def save_product_info(name, avito_id, published, link_photo, address, price, description, category):
+    '''Функция save_product_info сохраняет результат в бд'''
+    products = Products(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
+    description=description, category=category)
+    db.session.add(products)
+    db.session.commit()
+
+
 if __name__ == "__main__":
     get_product_info()
