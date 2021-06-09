@@ -12,7 +12,7 @@ class Products(db.Model):
     price = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=True)
     address = db.Column(db.Text, nullable=True)
-    category = db.Column(db.Text, nullable=True)
+    category = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return f'<Item {self.name} {self.id}>'

@@ -100,18 +100,22 @@ def get_product_info():
                 description = soup.find('div', class_="item-description").text.strip()
             except AttributeError:
                 description = ''
-        print(name, id, published, link_photo, address, price, description, category)
-        #save_product_info(name, id, published, link_photo, address, price, description, category)
+
+            logging.info(name, id, published, link_photo, address, price, description, category)
+            save_product_info(name, id, published, link_photo, address, price, description, category)
 
     logging.error('Ошибка работы парсера')
     return None
 
 def save_product_info(name, avito_id, published, link_photo, address, price, description, category):
     '''Функция save_product_info сохраняет результат в бд'''
-    products = Products(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
-    description=description, category=category)
-    db.session.add(products)
-    db.session.commit()
+    product_exists = Products.query.filter(Products.avito_id == avito_id).count()
+    
+    if not product_exists:
+        products = Products(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
+        description=description, category=category)
+        db.session.add(products)
+        db.session.commit()
 
 
 if __name__ == "__main__":
