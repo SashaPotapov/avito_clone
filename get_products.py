@@ -3,9 +3,10 @@ import logging
 from bs4 import BeautifulSoup
 from time import sleep
 from random import randrange
-from format_published import format_published
 
+from app import create_app
 from app.models import db, Product
+from format_published import format_published
 
 
 logging.basicConfig(filename='parser.log', level=logging.INFO)
@@ -133,8 +134,9 @@ def save_product_info(name, avito_id, published, link_photo, address, price, des
         db.session.add(products)
         db.session.commit()
         return
-    
     logging.info('Данные уже есть в бд')
 
 if __name__ == "__main__":
-    get_product_info()
+    app = create_app()
+    with app.app_context():
+        get_product_info()
