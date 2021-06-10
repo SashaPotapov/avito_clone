@@ -8,12 +8,13 @@ from format_published import format_published
 from app.models import db, Products
 
 
-logging.basicConfig(filename='parser.log', level=logging.INFO)
+logging.basicConfig(filename='parser.log', FORMAT= '%(asctime)s', level=logging.INFO)
 
 headers = {
     "Accept":  "*/*",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"
 }
+
 
 def get_html(page=1):
     '''Функция get_html возвращает первую страницу, если не возникает сетевых ошибок'''
@@ -22,12 +23,15 @@ def get_html(page=1):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         return response.text
-    except(requests.RequestException, ValueError):
-        logging.error(f'Ошибка {response.status_code}')
-        return False
+
+    except(ConnectionError, requests.RequestException, ValueError):
+        logging.error(f'Ошибка get_html {response.status_code}')
+        return False #Add raise exc
+
     except Exception as er:
-        logging.error(er)
-        return False
+        logging.error(f'Ошибка get_html {er}')
+        return False #Add raise exc
+
 
 def get_products_links():
     '''Функция get_products_links возвращает список ссылок на все товары категории'''
@@ -45,16 +49,20 @@ def get_products_links():
         else:
             end_page = count_pages
 
+        logging.info(f'{count_pages} страниц для парсинга')
         links = []
-        for i in range(1, end_page + 1):
-            page = get_html(i)
+        pages_gen = range(1, end_page + 1)
+        for p in pages_gen:
+            page = get_html(p)
             soup = BeautifulSoup(page, 'lxml')
             item_card = soup.find_all('div', class_="iva-item-content-m2FiN")
             for item in item_card:
                 link = f"https://www.avito.ru{item.find('div', class_='iva-item-titleStep-2bjuh').find('a').get('href')}"
                 links.append(link)
+            logging.info(f'{p} страницы спарсированны продукты')
         return links
     return False
+
 
 def get_product_html():
     '''Функция get_product_html возвращает список html-страниц по каждому товару категории'''
@@ -66,21 +74,23 @@ def get_product_html():
                 response = requests.get(link, headers=headers)
                 response.raise_for_status()
             except(requests.RequestException, ValueError):
-                logging.error(f'Ошибка {response.status_code}')
+                logging.error(f'Ошибка get_product_html {response.status_code}')
                 continue
             except Exception as er:
-                logging.error(er)
+                logging.error(f'Ошибка get_product_html {er}')
                 continue
             html_of_products.append(response.text)
+            logging.info(f'{link} продукт спарсирован')
             sleep(randrange(5, 7))
         return html_of_products
     return False
+
 
 def get_product_info():
     '''Функция get_product_info выводит информацию по каждому товару'''
     html_of_products = get_product_html()
     if html_of_products:
-        for html in html_of_products:
+        for html_num, html in enumerate(html_of_products):
             soup = BeautifulSoup(html, 'lxml')
 
             name = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
@@ -101,11 +111,16 @@ def get_product_info():
             except AttributeError:
                 description = ''
 
-            logging.info(name, id, published, link_photo, address, price, description, category)
+            logging.info(f'{html_num} данные продукта получены')
             save_product_info(name, id, published, link_photo, address, price, description, category)
+    
+        logging.info(f'Все данные получены')
+        return
 
-    logging.error('Ошибка работы парсера')
+    logging.error('get_product_info ошибка работы парсера')
     return None
+    
+
 
 def save_product_info(name, avito_id, published, link_photo, address, price, description, category):
     '''Функция save_product_info сохраняет результат в бд'''
@@ -116,7 +131,9 @@ def save_product_info(name, avito_id, published, link_photo, address, price, des
         description=description, category=category)
         db.session.add(products)
         db.session.commit()
-
+        return
+    
+    logging.info('Данные уже есть в бд')
 
 if __name__ == "__main__":
     get_product_info()
