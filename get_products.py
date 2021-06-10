@@ -49,7 +49,7 @@ def get_products_links():
         else:
             end_page = count_pages
 
-        logging.info(f'{count_pages} страниц для парсинга')
+        logging.info(f'{end_page} страниц для парсинга')
         links = []
         pages_gen = range(1, end_page + 1)
         for p in pages_gen:
@@ -60,6 +60,7 @@ def get_products_links():
                 link = f"https://www.avito.ru{item.find('div', class_='iva-item-titleStep-2bjuh').find('a').get('href')}"
                 links.append(link)
             logging.info(f'{p} страницы спарсированны продукты')
+        logging.info(f'{len(links)} продуктов найдено')
         return links
     return False
 
@@ -80,7 +81,7 @@ def get_product_html():
                 logging.error(f'Ошибка get_product_html {er}')
                 continue
             html_of_products.append(response.text)
-            logging.info(f'{link} продукт спарсирован')
+            logging.info(f'{link} ссылка на продукт спарсирована')
             sleep(randrange(5, 7))
         return html_of_products
     return False
@@ -128,7 +129,7 @@ def save_product_info(name, avito_id, published, link_photo, address, price, des
     
     if not product_exists:
         products = Product(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
-        description=description, category=category)
+                            description=description, category=category)
         db.session.add(products)
         db.session.commit()
         return
