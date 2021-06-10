@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for product in products[:20] %}
+        <h1>{{ product.name }}</h1>
+        <h3><em>{{ product.category }}</em></h3>
+        <img src="{{ product.link_photo }}">
+        <p>{{ product.description[:100] }}</p>
+        <p>{{ product.address }}</p>
+        <p><em>{{ product.price }} руб.</em></p>
+        <p>{{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
+        <hr>
+    {% endfor %}
+{% endblock content %}
