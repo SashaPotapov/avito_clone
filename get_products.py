@@ -5,10 +5,10 @@ from time import sleep
 from random import randrange
 from format_published import format_published
 
-from app.models import db, Products
+from app.models import db, Product
 
 
-logging.basicConfig(filename='parser.log', FORMAT= '%(asctime)s', level=logging.INFO)
+logging.basicConfig(filename='parser.log', level=logging.INFO)
 
 headers = {
     "Accept":  "*/*",
@@ -26,11 +26,11 @@ def get_html(page=1):
 
     except(ConnectionError, requests.RequestException, ValueError):
         logging.error(f'Ошибка get_html {response.status_code}')
-        return False #Add raise exc
+        return False
 
     except Exception as er:
         logging.error(f'Ошибка get_html {er}')
-        return False #Add raise exc
+        return False
 
 
 def get_products_links():
@@ -124,10 +124,10 @@ def get_product_info():
 
 def save_product_info(name, avito_id, published, link_photo, address, price, description, category):
     '''Функция save_product_info сохраняет результат в бд'''
-    product_exists = Products.query.filter(Products.avito_id == avito_id).count()
+    product_exists = Product.query.filter(Product.avito_id == avito_id).count()
     
     if not product_exists:
-        products = Products(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
+        products = Product(name=name, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
         description=description, category=category)
         db.session.add(products)
         db.session.commit()

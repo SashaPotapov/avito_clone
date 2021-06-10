@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class Products(db.Model):
+    __tablename__ = 'products'
     id = db.Column(db.Integer, primary_key=True)
     avito_id = db.Column(db.String, unique=True)
     name = db.Column(db.String, nullable=False)
