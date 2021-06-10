@@ -3,10 +3,10 @@ import logging
 from bs4 import BeautifulSoup
 from time import sleep
 from random import randrange
-from format_published import format_published
 
 from app import create_app
 from app.models import db, Product
+from format_published import format_published
 
 
 logging.basicConfig(filename='parser.log', level=logging.INFO)
@@ -83,7 +83,6 @@ def get_product_html():
                 continue
             html_of_products.append(response.text)
             logging.info(f'{link} ссылка на продукт спарсирована')
-            break
             sleep(randrange(5, 7))
         return html_of_products
     return False
