@@ -17,8 +17,10 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     email = db.Column(db.String(64), unique=True)
-    date_birth = db.Column(db.Date)
-    adress = db.Column(db.Text)
+    first_name = db.Column(db.String(64), nullable=False)
+    second_name = db.Column(db.String(64), nullable=True)
+    date_birth = db.Column(db.Date, nullable=False)
+    adress = db.Column(db.Text, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     products = db.relationship('Product', backref='user')
 
