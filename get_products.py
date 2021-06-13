@@ -126,7 +126,7 @@ def get_product_info():
             except AttributeError:
                 description = ''
             
-            logging.info(f'{html_num} данные продукта получены')
+            logging.info(f'{html_num+1} данные продукта получены')
 
             save_user_info(avito_user_id, avito_user_name, address)
             save_product_info(title, avito_id, published, link_photo, address, price, description, category, avito_user_id)
