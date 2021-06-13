@@ -1,3 +1,4 @@
+from _typeshed import NoneType
 import requests
 import logging
 import re
@@ -73,7 +74,7 @@ def get_product_html():
     links = get_products_links()
     if links:
         html_of_products = []
-        for link in links:
+        for link_num, link in enumerate(links):
             try:
                 response = requests.get(link, headers=headers)
                 response.raise_for_status()
@@ -84,8 +85,8 @@ def get_product_html():
                 logging.error(f'Ошибка get_product_html {er}')
                 continue
             html_of_products.append(response.text)
-            logging.info(f'{link} ссылка на продукт спарсирована')
-            sleep(randrange(5, 7))
+            logging.info(f'{link_num+1} {link} ссылка на продукт спарсирована')
+            sleep(10)
         return html_of_products
     return False
 
@@ -112,8 +113,10 @@ def get_product_info():
             published = format_published(published)
 
             link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
-            price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
-            if not price:
+
+            try:
+                price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
+            except AttributeError:
                 price = 0
                 
             category = soup.find('div', class_="item-navigation").find_all('span', itemprop="itemListElement")[-1].find('span').text.strip()
