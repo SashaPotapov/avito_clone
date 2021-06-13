@@ -113,6 +113,9 @@ def get_product_info():
 
             link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
             price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip()
+            if not price:
+                price = 0
+                
             category = soup.find('div', class_="item-navigation").find_all('span', itemprop="itemListElement")[-1].find('span').text.strip()
             try:
                 address = soup.find('div', class_="item-view-block item-view-map js-item-view-map").find('span', class_="item-address__string").text.strip()
@@ -140,7 +143,7 @@ def save_user_info(avito_user_id, avito_user_name, address):
     user_exists = User.query.filter(User.username == avito_user_id).count()
 
     if not user_exists:
-        user = User(username=avito_user_id, email='', name=avito_user_name, date_birth=datetime(1900, 1, 1), address=address,\
+        user = User(username=avito_user_id, email=f'{avito_user_id}@avito', name=avito_user_name, date_birth=datetime(1900, 1, 1), address=address,\
                     role_id=Role.query.filter_by(name='AvitoUser').first().id)
         db.session.add(user)
         db.session.commit()
