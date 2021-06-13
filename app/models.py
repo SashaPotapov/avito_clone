@@ -16,11 +16,10 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    email = db.Column(db.String(64), unique=True)
-    first_name = db.Column(db.String(64), nullable=False)
-    second_name = db.Column(db.String(64), nullable=True)
+    email = db.Column(db.String(64), unique=True, nullable=True)
+    name = db.Column(db.String(64), nullable=False)
     date_birth = db.Column(db.Date, nullable=False)
-    adress = db.Column(db.Text, nullable=False)
+    address = db.Column(db.Text, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     products = db.relationship('Product', backref='user')
 
