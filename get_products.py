@@ -85,8 +85,7 @@ def get_product_html():
                 continue
             html_of_products.append(response.text)
             logging.info(f'{link} ссылка на продукт спарсирована')
-            break
-            #sleep(randrange(5, 7))
+            sleep(randrange(5, 7))
         return html_of_products
     return False
 
