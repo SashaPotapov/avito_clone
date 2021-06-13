@@ -2,3 +2,4 @@ venv/
 .vscode/
 __pycache__/
 parser.log
+app/config.py
