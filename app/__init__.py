@@ -22,4 +22,14 @@ def create_app():
         return render_template('index.html', title='Авитоклон', products=products, 
                                 pagination=pagination, next_url=next_url, prev_url=prev_url, page=page)
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('500.html'), 500
+
+
+
     return app

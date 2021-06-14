@@ -4,7 +4,7 @@
     <div class="row">
         <div class='col-dm-4'>
         {% for product in products %}
-            <h3><a href="">{{ product.name }}</a></h3>
+            <h3><a href="">{{ product.title }}</a></h3>
             <h5<em>Категория: {{ product.category }}</em></h5><br>
             <img src="{{ product.link_photo }}" height="300" width="300">
             <p>Описание: {{ product.description[:100] }}...</p>
