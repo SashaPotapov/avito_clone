@@ -62,7 +62,7 @@ def get_products_links():
             for item in item_card:
                 link = f"https://www.avito.ru{item.find('div', class_='iva-item-titleStep-2bjuh').find('a').get('href')}"
                 links.append(link)
-            logging.info(f'{p} страницы спарсированны продукты')
+            logging.info(f'получена ссылка - {p}')
         logging.info(f'{len(links)} продуктов найдено')
         return links
     return False
@@ -89,7 +89,7 @@ def get_product_html():
                 raise requests.RequestException(f'Бан от авито {response.status_code}')
 
             html_of_products.append(response.text)
-            logging.info(f'{link_num+1} {link} ссылка на продукт спарсирована')
+            logging.info(f'{link_num+1} {link} html продукта спрасирован')
             sleep(9)
         return html_of_products
     return False
@@ -146,7 +146,7 @@ def get_product_info():
     
 
 def save_user_info(avito_user_id, avito_user_name, address):
-    '''Функция save_product_info сохраняет инфо юзера в бд'''
+    '''Функция save_product_info сохраняет информацию о пользователе в бд'''
     user_exists = User.query.filter(User.username == avito_user_id).count()
 
     if not user_exists:
@@ -155,10 +155,10 @@ def save_user_info(avito_user_id, avito_user_name, address):
         db.session.add(user)
         db.session.commit()
         return
-    logging.info('Данные юзера уже есть в бд')
+    logging.info('Данные пользователя присутствуют в бд')
 
 def save_product_info(title, avito_id, published, link_photo, address, price, description, category, avito_user_id):
-    '''Функция save_product_info сохраняет инфо продукта в бд'''
+    '''Функция save_product_info сохраняет информацию о продукте в бд'''
     product_exists = Product.query.filter(Product.avito_id == avito_id).count()
     
     if not product_exists:
@@ -167,7 +167,7 @@ def save_product_info(title, avito_id, published, link_photo, address, price, de
         db.session.add(product)
         db.session.commit()
         return
-    logging.info('Данные продукта уже есть в бд')
+    logging.info('Данные продукта присутствуют в бд')
 
 if __name__ == "__main__":
     app = create_app()
