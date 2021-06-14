@@ -1,4 +1,3 @@
-from _typeshed import NoneType
 import requests
 import logging
 import re
@@ -12,7 +11,7 @@ from app.models import Role, db, Product, User
 from format_published import format_published
 
 
-logging.basicConfig(filename='parser.log', level=logging.INFO)
+logging.basicConfig(filename='parser.log', filemode='w', level=logging.INFO)
 
 headers = {
     "Accept":  "*/*",
@@ -84,9 +83,14 @@ def get_product_html():
             except Exception as er:
                 logging.error(f'Ошибка get_product_html {er}')
                 continue
+            
+            if response.status_code == '429':
+                logging.error(f'Бан от авито {response.status_code}')
+                raise requests.RequestException(f'Бан от авито {response.status_code}')
+
             html_of_products.append(response.text)
             logging.info(f'{link_num+1} {link} ссылка на продукт спарсирована')
-            sleep(10)
+            sleep(9)
         return html_of_products
     return False
 
