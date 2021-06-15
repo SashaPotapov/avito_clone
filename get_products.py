@@ -108,7 +108,7 @@ def get_product_info():
             logging.info(avito_user_id_url)
             avito_user_id = avito_user_id_regex.search(avito_user_id_url).group(4)
 
-            avito_user_name = soup.find('div', class_="seller-info-name js-seller-info-name").find('a').text.strip()
+            email = f'{avito_user_id}@avito'
 
             title = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
             avito_id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
@@ -135,8 +135,8 @@ def get_product_info():
             
             logging.info(f'{html_num+1} данные продукта получены')
 
-            save_user_info(avito_user_id, avito_user_name, address)
-            save_product_info(title, avito_id, published, link_photo, address, price, description, category, avito_user_id)
+            save_user_info(email, avito_user_id, address) 
+            save_product_info(title, avito_id, published, link_photo, address, price, description, category, email)
 
         logging.info(f'Все данные получены')
         return
@@ -145,25 +145,25 @@ def get_product_info():
     return None
     
 
-def save_user_info(avito_user_id, avito_user_name, address):
+def save_user_info(email, avito_user_id, avito_user_name, address):
     '''Функция save_product_info сохраняет инфо юзера в бд'''
-    user_exists = User.query.filter(User.username == avito_user_id).count()
+    user_exists = User.query.filter(User.email == email).count()
 
     if not user_exists:
-        user = User(username=avito_user_id, email=f'{avito_user_id}@avito', name=avito_user_name, date_birth=datetime(1900, 1, 1), address=address,\
+        user = User(email=email, name=avito_user_name, address=address,\
                     role_id=Role.query.filter_by(name='AvitoUser').first().id)
         db.session.add(user)
         db.session.commit()
         return
     logging.info('Данные юзера уже есть в бд')
 
-def save_product_info(title, avito_id, published, link_photo, address, price, description, category, avito_user_id):
+def save_product_info(title, avito_id, published, link_photo, address, price, description, category, email):
     '''Функция save_product_info сохраняет инфо продукта в бд'''
     product_exists = Product.query.filter(Product.avito_id == avito_id).count()
     
     if not product_exists:
         product = Product(title=title, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
-                            description=description, category=category, user_id=User.query.filter_by(username=avito_user_id).first().id)
+                            description=description, category=category, user_id=User.query.filter_by(email=email).first().id)
         db.session.add(product)
         db.session.commit()
         return

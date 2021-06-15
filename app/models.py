@@ -12,10 +12,8 @@ class Role(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, index=True)
-    email = db.Column(db.String(64), unique=True)
+    email = db.Column(db.String(64), unique=True, index=True)
     name = db.Column(db.String(64), nullable=False)
-    date_birth = db.Column(db.Date, nullable=False)
     address = db.Column(db.Text, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     products = db.relationship('Product', backref='user')
@@ -26,11 +24,11 @@ class User(db.Model):
 class Product(db.Model):
     __tablename__ = 'products'
     id = db.Column(db.Integer, primary_key=True)
-    avito_id = db.Column(db.String, unique=True)
-    title = db.Column(db.String, nullable=False)
+    avito_id = db.Column(db.String(64), unique=True)
+    title = db.Column(db.String(64), nullable=False)
     published = db.Column(db.DateTime, nullable=False)
-    link_photo = db.Column(db.String, nullable=False)
-    price = db.Column(db.String, nullable=False)
+    link_photo = db.Column(db.String(64), nullable=False)
+    price = db.Column(db.String(64), nullable=False)
     description = db.Column(db.Text, nullable=True)
     address = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=False)
