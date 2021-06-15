@@ -108,7 +108,7 @@ def get_product_info():
             logging.info(avito_user_id_url)
             avito_user_id = avito_user_id_regex.search(avito_user_id_url).group(4)
 
-            email = f'{avito_user_id}@avito'
+            email = f'{avito_user_id}@avito.ru'
 
             title = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
             avito_id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
