@@ -170,6 +170,6 @@ def save_product_info(title, avito_id, published, link_photo, address, price, de
     logging.info('Данные продукта уже есть в бд')
 
 if __name__ == "__main__":
-    app = create_app()
+    app = create_app('default')
     with app.app_context():
         get_product_info()
