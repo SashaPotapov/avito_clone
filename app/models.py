@@ -15,6 +15,7 @@ class User(db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     name = db.Column(db.String(64), nullable=False)
     address = db.Column(db.Text, nullable=False)
+    password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     products = db.relationship('Product', backref='user')
 
