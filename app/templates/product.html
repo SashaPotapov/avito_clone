@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="row justify-content-start">
+            <div class="col-4">
+                <h3>{{ product.title }}</h3>
+                <h6>Опубликовано: {{ product.published }}</h6>
+                <img src="{{ product.link_photo }}" height="280" weight="280">
+                <hr>
+                <p><em>Адрес: {{ product.address }}</em></p>
+                <hr>
+                <p>Описание: {{ product.description }}</p>
+                <hr>
+            </div>
+            <div class="col-4">
+                <h4>{{ product.price }} руб</h4>
+                <hr>
+                <p>№{{ product.avito_id }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock page_content %}
