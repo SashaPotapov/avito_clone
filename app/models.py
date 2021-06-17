@@ -45,6 +45,8 @@ class User(db.Model, UserMixin):
             data = s.loads(token.encode('utf-8'))
         except:
             return False
+        if data.get('confirm') != self.id:
+            return False
         self.confirmed = True
         db.session.add(self)
         return True
