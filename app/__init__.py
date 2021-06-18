@@ -1,35 +1,32 @@
-from flask import Flask, render_template, request, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
+from flask_login import LoginManager
+from flask_mail import Mail
+from config import config
 
-from app.models import db, Product
+bootstrap = Bootstrap()
+mail = Mail()
+db = SQLAlchemy()
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+mail = Mail()
 
-def create_app():
+def create_app(config_name):
     app = Flask(__name__)
-    app.config.from_pyfile('config.py')
+    app.config.from_object(config[config_name])
+
+    bootstrap.init_app(app)
+    mail.init_app(app)
     db.init_app(app)
-    bootstrap = Bootstrap(app) 
+    login_manager.init_app(app)
+    mail.init_app(app)
 
-    @app.route('/')
-    @app.route('/index')
-    def index():
-        page = request.args.get('page', 1, type=int)
-        pagination = Product.query.order_by(Product.published.desc()).paginate(page, error_out=False)
-        products = pagination.items
-        next_url = url_for('index', page=pagination.next_num)
-        page = url_for('index', page=pagination.page)
-        prev_url = url_for('index', page=pagination.prev_num)
-        return render_template('index.html', title='Авитоклон', products=products, 
-                                pagination=pagination, next_url=next_url, prev_url=prev_url, page=page)
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template('404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_server_error(e):
-        return render_template('500.html'), 500
-
-
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     return app
