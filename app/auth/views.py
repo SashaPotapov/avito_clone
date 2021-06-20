@@ -5,7 +5,7 @@ from .. import db
 from ..models import User
 from ..email import send_email
 from . import auth
-from .forms import LoginForm, RegForm
+from .forms import LoginForm, RegForm, ChangePassForm
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -74,3 +74,19 @@ def resend_email_confirmation():
     send_email(current_user.email, 'Подтверждение аккаунта', 'auth/email/confirm',\
                user=current_user, token=token)
     return redirect(url_for('main.index'))
+
+@auth.route('/change-password')
+@login_required
+def change_password():
+    form = ChangePassForm()
+    user = current_user
+    if form.validate_on_submit():
+        if user.verify_password(form.password_old.data):
+            user.password = form.password_new.data
+            db.session.add(user)
+            db.session.commit()
+            flash('Ваш пароль успешно обновлен')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Неверный пароль')
+    return render_template('auth/change-password', form=form)

@@ -28,3 +28,9 @@ class RegForm(FlaskForm):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('E-mail уже зарегистрирован')
     
+class ChangePassForm(FlaskForm):
+    password_old = PasswordField('Введите старый пароль', validators=[DataRequired()])
+    password_new = PasswordField('Введите новый пароль', validators=[DataRequired(), EqualTo('pass_conf', 
+                                                         message='Пароли не совпадают.'), Length(2, 64)])
+    pass_conf = PasswordField('Повторите новый пароль', validators=[DataRequired(), Length(2, 64)])
+    submit = SubmitField('Сменить пароль')
