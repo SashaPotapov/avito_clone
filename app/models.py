@@ -17,8 +17,8 @@ class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
-    name = db.Column(db.String(64), nullable=False)
-    address = db.Column(db.Text, nullable=False)
+    name = db.Column(db.String(64), nullable=True)
+    address = db.Column(db.Text, nullable=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     products = db.relationship('Product', backref='user')

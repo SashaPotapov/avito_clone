@@ -45,7 +45,7 @@ def registration():
 
 @auth.route('/confirm/<token>')
 @login_required
-def confirmation(token):
+def confirm(token):
     if current_user.confirmed:
         flash('Ваш email уже подтвержден')
     if current_user.confirm(token):

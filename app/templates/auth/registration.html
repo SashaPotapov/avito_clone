@@ -17,23 +17,73 @@
                 {{ form.hidden_tag() }}
                 <div class="mb-3">
                     {{ form.email.label }}
-                    {{ form.email() }}
+
+                    {% if form.email.errors %}
+                        {{ form.email(class='is-invalid') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email() }}
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     {{ form.fname.label }}
-                    {{ form.fname() }}
+
+                    {% if form.fname.errors %}
+                        {{ form.fname(class='is-invalid') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.fname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.fname() }}
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     {{ form.lname.label }}
-                    {{ form.lname() }}
+
+                    {% if form.lname.errors %}
+                        {{ form.lname(class='is-invalid') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.lname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lname() }}
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     {{ form.password.label }}
-                    {{ form.password() }}
+
+                    {% if form.password.errors %}
+                        {{ form.password(class='is-invalid') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password() }}
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     {{ form.pass_conf.label }}
-                    {{ form.pass_conf() }}
+
+                    {% if form.pass_conf.errors %}
+                        {{ form.pass_conf(class='is-invalid') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.pass_conf.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.pass_conf() }}
+                    {% endif %}
                 </div>
                 {{ form.submit() }}
             </form>
