@@ -75,7 +75,7 @@ def resend_email_confirmation():
                user=current_user, token=token)
     return redirect(url_for('main.index'))
 
-@auth.route('/change-password')
+@auth.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
     form = ChangePassForm()
