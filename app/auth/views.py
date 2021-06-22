@@ -25,7 +25,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Вы разлогинились из системы')
+    flash('Вы успешно вышли из системы')
     return redirect(url_for('main.index'))
 
 @auth.route('/registration', methods=['GET', 'POST'])
