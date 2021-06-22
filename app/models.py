@@ -51,6 +51,16 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         return True
 
+    @staticmethod
+    def check_user(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+            user_id = data.get('confirm')
+            return User.query.filter(User.id == user_id).first()
+        except:
+            return False
+
     def __repr__(self):
         return f'<User {self.username} {self.id}>'
 

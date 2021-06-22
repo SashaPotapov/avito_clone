@@ -57,3 +57,10 @@ class UserModelTestCase(unittest.TestCase):
         db.session.commit()
         token = u.generate_confirmation_token()
         self.assertFalse(u2.confirm(token))
+
+    def test_check_user(self):
+        u = User(password = 'cat')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_confirmation_token()
+        self.assertTrue(u == User.check_user(token))
