@@ -6,7 +6,7 @@
         <div class="col-4">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <div class="alert alert-warning" role="alert">
+                    <div class="alert alert-success" role="alert">
                         {% for message in messages %}
                             {{ message }}<br>
                         {% endfor %}
@@ -19,12 +19,12 @@
                     {{ form.email.label }}
 
                     {% if form.email.errors %}
-                        {{ form.email(class='is-invalid') }}
-                        <div class="invalid-feedback">    
+                        {{ form.email(class='is-invalid form-control') }}
+                        <div class="invalid-feedback">
                             {% for error in form.email.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
-                        </div>
+                        <div>
                     {% else %}
                         {{ form.email() }}
                     {% endif %}
@@ -33,7 +33,7 @@
                     {{ form.fname.label }}
 
                     {% if form.fname.errors %}
-                        {{ form.fname(class='is-invalid') }}
+                        {{ form.fname(class='is-invalid form-control') }}
                         <div class="invalid-feedback">    
                             {% for error in form.fname.errors %}
                                 <span>{{ error }}</span>
@@ -47,7 +47,7 @@
                     {{ form.lname.label }}
 
                     {% if form.lname.errors %}
-                        {{ form.lname(class='is-invalid') }}
+                        {{ form.lname(class="is_invalid form-control") }}
                         <div class="invalid-feedback">    
                             {% for error in form.lname.errors %}
                                 <span>{{ error }}</span>
@@ -61,7 +61,7 @@
                     {{ form.password.label }}
 
                     {% if form.password.errors %}
-                        {{ form.password(class='is-invalid') }}
+                        {{ form.password(class='is-invalid form-control') }}
                         <div class="invalid-feedback">    
                             {% for error in form.password.errors %}
                                 <span>{{ error }}</span>
@@ -75,7 +75,7 @@
                     {{ form.pass_conf.label }}
 
                     {% if form.pass_conf.errors %}
-                        {{ form.pass_conf(class='is-invalid') }}
+                        {{ form.pass_conf(class='is-invalid form-control') }}
                         <div class="invalid-feedback">    
                             {% for error in form.pass_conf.errors %}
                                 <span>{{ error }}</span>

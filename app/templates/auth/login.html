@@ -6,7 +6,7 @@
         <div class="col-4">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <div class="alert alert-warning" role="alert">
+                    <div class="alert alert-danger" role="alert">
                         {% for message in messages %}
                             {{ message }}<br>
                         {% endfor %}
@@ -31,6 +31,5 @@
             </form>
         </div>
         <div class="col-8">
-            
-        </div>
+    </div>
 {% endblock page_content %}
