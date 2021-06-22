@@ -19,9 +19,9 @@ def login():
                 next = url_for('main.index') 
             return redirect(next)
         flash('Неправильный логин или пароль')
-    return render_template('auth/login.html', form=form, title='Логин') 
+    return render_template('auth/login.html', form=form, title='Авторизация') 
 
-@auth.route('/logout')
+@auth.route('/logout') 
 @login_required
 def logout():
     logout_user()
@@ -48,9 +48,11 @@ def registration():
 def confirm(token):
     if current_user.confirmed:
         flash('Ваш email уже подтвержден')
+        return redirect(url_for('main.index'))
     if current_user.confirm(token):
         db.session.commit()
         flash('Email успешно подтвержден')
+        return redirect(url_for('main.index'))
     else:
         flash('Срок действия подтверждения истек')
         return redirect(url_for('auth.unconfirmed'))
