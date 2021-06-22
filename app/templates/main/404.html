@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
-    <div class="d-flex justify-content-center">
-        <h1>Страница, которую вы ищете, не существует!</h1>
-        <p>Наверное, вы ошиблись при наборе адреса или перешли по неверной ссылке.</p>
+<div class="row">
+    <div class="col-md-12">
+        <div class="error-template">
+            <h2>
+                Страница, которую вы ищете, не существует!
+            </h2>
+            <div class="error-details">
+                Наверное, вы ошиблись при наборе адреса или перешли по неверной ссылке.
+            </div>
+        </div>
     </div>
+</div>
 {% endblock page_content %}

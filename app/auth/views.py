@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_required, current_user
 from flask_login.utils import login_user, logout_user
 from .. import db
-from ..models import User
+from ..models import User, Role
 from ..email import send_email
 from . import auth
 from .forms import LoginForm, RegForm
@@ -18,14 +18,14 @@ def login():
             if next is None or not next.startswith('/'):
                 next = url_for('main.index') 
             return redirect(next)
-        flash('Неправильный логин или пароль')
+        flash('Неправильный логин или пароль', 'warning')
     return render_template('auth/login.html', form=form, title='Авторизация') 
 
 @auth.route('/logout') 
 @login_required
 def logout():
     logout_user()
-    flash('Вы успешно вышли из системы')
+    flash('Вы успешно вышли из системы', 'info')
     return redirect(url_for('main.index'))
 
 @auth.route('/registration', methods=['GET', 'POST'])
@@ -34,35 +34,33 @@ def registration():
     if form.validate_on_submit():
         user = User(email = form.email.data, 
                     name=f'{form.fname.data} {form.lname.data}',
-                    password=form.password.data)
+                    password=form.password.data, 
+                    role_id=Role.query.filter_by(name='User').first().id)
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
         send_email(user.email, 'Подтверждение аккаунта', 'auth/email/confirm', user=user, token=token)
-        flash('Ваш аккаунт успешно создан.\nПожалуйста, подтвердите его по ссылке, отправленной на ваш email')
-        return redirect(url_for('main.index'))
+        flash(f'Ваш аккаунт успешно создан.\nПожалуйста, подтвердите его по ссылке, отправленной на {user.email}', 'success')
+        return redirect(url_for('auth.login'))
     return render_template('auth/registration.html', form=form, title='Регистрация')
 
 @auth.route('/confirm/<token>')
 @login_required
 def confirm(token):
     if current_user.confirmed:
-        flash('Ваш email уже подтвержден')
+        flash('Ваш email уже подтвержден', 'info')
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         db.session.commit()
-        flash('Email успешно подтвержден')
+        flash('Аккаунт успешно подтвержден', 'success')
         return redirect(url_for('main.index'))
-    else:
-        flash('Срок действия подтверждения истек')
-        return redirect(url_for('auth.unconfirmed'))
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.unconfirmed'))
     
 @auth.route('/unconfirmed')
 @login_required
 def unconfirmed():
     if current_user.confirmed:
-        flash('Ваш email уже подтвержден')
+        flash('Ваш email уже подтвержден', 'info')
         return redirect(url_for('main.index'))
     return render_template('auth/unconfirmed.html')
 
@@ -70,8 +68,9 @@ def unconfirmed():
 @login_required
 def resend_email_confirmation():
     if current_user.confirmed:
-        flash('Ваш email уже подтвержден')
-        return redirect(url_for('main.index'))        
+        flash('Ваш email уже подтвержден', 'info')
+        return redirect(url_for('main.index')) 
+    flash(f'Ссылка подтверждения отправлена на {current_user.email}', 'success')       
     token = current_user.generate_confirmation_token()
     send_email(current_user.email, 'Подтверждение аккаунта', 'auth/email/confirm',\
                user=current_user, token=token)
