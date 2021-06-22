@@ -19,7 +19,7 @@ def login():
                 next = url_for('main.index') 
             return redirect(next)
         flash('Неправильный логин или пароль')
-    return render_template('auth/login.html', form=form) 
+    return render_template('auth/login.html', form=form, title='Логин') 
 
 @auth.route('/logout')
 @login_required
@@ -41,7 +41,7 @@ def registration():
         send_email(user.email, 'Подтверждение аккаунта', 'auth/email/confirm', user=user, token=token)
         flash('Ваш аккаунт успешно создан.\nПожалуйста, подтвердите его по ссылке, отправленной на ваш email')
         return redirect(url_for('main.index'))
-    return render_template('auth/registration.html', form=form)
+    return render_template('auth/registration.html', form=form, title='Регистрация')
 
 @auth.route('/confirm/<token>')
 @login_required
