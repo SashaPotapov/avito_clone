@@ -43,4 +43,9 @@ class ChangeNameForm(FlaskForm):
     lname_new = StringField('Введите вашу фамилию (опционально)', validators=[Length(2, 64),
         Regexp('^[А-Яа-я]+$', 0,
                 'Введите новое имя')])
- 
+    submit = SubmitField('Сменить имя')
+    
+    
+class ChangeEmailForm(FlaskForm):
+    email_new = StringField('E-mail', validators=[DataRequired(), Length(1, 64), Email()])
+     
