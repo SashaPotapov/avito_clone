@@ -1,3 +1,4 @@
+import re
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_required, current_user
 from flask_login.utils import login_user, logout_user
@@ -5,7 +6,7 @@ from .. import db
 from ..models import User
 from ..email import send_email
 from . import auth
-from .forms import LoginForm, RegForm, ChangePassForm
+from .forms import LoginForm, RegForm, ChangePassForm, ChangeNameForm
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -85,8 +86,21 @@ def change_password():
             user.password = form.password_new.data
             db.session.add(user)
             db.session.commit()
-            flash('Ваш пароль успешно обновлен')
+            flash('Ваш пароль успешно обновлен', 'success')
             return redirect(url_for('main.index'))
         else:
             flash('Неверный пароль')
-    return render_template('auth/change-password', form=form)
+    return render_template('auth/change_password', form=form, )
+
+@auth.route('/change-name', methods=['GET', 'POST'])
+@login_required
+def change_name():
+    form = ChangeNameForm()
+    user = current_user
+    if form.validate_on_submit():
+        user.name = f'{form.fname_new.date} {form.lname_new.data}'
+        db.session.add(user)
+        db.session.commit()
+        flash('Ваше имя успешно обновлено', 'success')
+        return redirect(url_for('main/index'))
+    return render_template('auth/change_name', form=form)

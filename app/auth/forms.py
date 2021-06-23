@@ -34,3 +34,13 @@ class ChangePassForm(FlaskForm):
                                                          message='Пароли не совпадают.'), Length(2, 64)])
     pass_conf = PasswordField('Повторите новый пароль', validators=[DataRequired(), Length(2, 64)])
     submit = SubmitField('Сменить пароль')
+    
+class ChangeNameForm(FlaskForm):
+    fname_new = StringField('Введите новое имя', 
+        validators=[DataRequired(), Length(2, 64), 
+                    Regexp('^[А-Яа-я]+$', 0,
+                            'Имя может содержать только буквы русского алфавита.')])
+    lname_new = StringField('Введите вашу фамилию (опционально)', validators=[Length(2, 64),
+        Regexp('^[А-Яа-я]+$', 0,
+                'Введите новое имя')])
+ 
