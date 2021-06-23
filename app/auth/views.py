@@ -6,7 +6,7 @@ from .. import db
 from ..models import User
 from ..email import send_email
 from . import auth
-from .forms import LoginForm, RegForm, ChangePassForm, ChangeNameForm
+from .forms import LoginForm, RegForm, ChangePassForm, ChangeNameForm, ChangeEmailForm
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -104,3 +104,25 @@ def change_name():
         flash('Ваше имя успешно обновлено', 'success')
         return redirect(url_for('main/index'))
     return render_template('auth/change_name', form=form)
+
+@auth.route('/change-email', methods=['GET', 'POST'])
+@login_required
+def change_email():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        email = form.email_new.data
+        token = current_user.generate_email_change_token(email)
+        send_email(email, 'Смена email', 'auth/email/change_email',\
+                   user=current_user, token=token)
+        flash(f'Пожалуйста, подтвердите новый email перейдя по ссылке, отправленной на {email}', 'info')
+    return redirect(url_for('auth/change_email'))        
+
+@auth.route('/change-email/<token>')
+@login_required
+def change_email_confirmation(token):
+    if current_user.confirm_email_change(token):
+        db.session.commit()
+        flash('Ваш email успешно обновлен', 'success')
+    else:
+        flash('Ссылка на подтверждение истекла. Пожалуйста, отправьте подтверждение еще раз', 'warning')
+    return redirect(url_for('main.index'))

@@ -48,4 +48,5 @@ class ChangeNameForm(FlaskForm):
     
 class ChangeEmailForm(FlaskForm):
     email_new = StringField('E-mail', validators=[DataRequired(), Length(1, 64), Email()])
-     
+    submit = SubmitField('Сменить email')
+    
