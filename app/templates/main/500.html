@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
-    <div class="d-flex justify-content-center">
-        <h1>Произошла ошибка сервера!</h1>
-        <p>На сервере произошла непредвиденная ошибка, пожалуйста, подождите. Она скоро будет исправлена</p>
+<div class="row">
+    <div class="col-md-12">
+        <div class="error-template">
+            <h2>
+                Произошла ошибка сервера!
+            </h2>
+            <div class="error-details">
+                На сервере произошла непредвиденная ошибка, пожалуйста, подождите. Она скоро будет исправлена.
+            </div>
+        </div>
     </div>
+</div>
 {% endblock page_content %}
