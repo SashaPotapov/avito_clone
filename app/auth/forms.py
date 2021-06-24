@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo, Optional
 from wtforms import ValidationError
 from ..models import User
 
@@ -16,7 +16,7 @@ class RegForm(FlaskForm):
         validators=[DataRequired(), Length(2, 64), 
                     Regexp('^[А-Яа-я]+$', 0,
                             'Имя может содержать только буквы русского алфавита.')])
-    lname = StringField('Введите вашу фамилию (опционально)', validators=[Length(2, 64),
+    lname = StringField('Введите вашу фамилию (опционально)', validators=[Optional(), Length(2, 64),
         Regexp('^[А-Яа-я]+$', 0,
                 'Фамилия может содержать только буквы русского алфавита.')])
     password = PasswordField('Введите пароль', validators=[DataRequired(), Length(8, 64),
@@ -40,7 +40,7 @@ class ChangeNameForm(FlaskForm):
         validators=[DataRequired(), Length(2, 64), 
                     Regexp('^[А-Яа-я]+$', 0,
                             'Имя может содержать только буквы русского алфавита.')])
-    lname_new = StringField('Введите вашу фамилию (опционально)', validators=[Length(2, 64),
+    lname_new = StringField('Введите вашу фамилию (опционально)', validators=[Optional(), Length(2, 64),
         Regexp('^[А-Яа-я]+$', 0,
                 'Введите новое имя')])
     submit = SubmitField('Сменить имя')
