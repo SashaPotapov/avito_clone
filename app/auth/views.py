@@ -90,7 +90,7 @@ def change_password():
             return redirect(url_for('main.index'))
         else:
             flash('Неверный пароль')
-    return render_template('auth/change_password', form=form, )
+    return render_template('auth/change_password.html', form=form, )
 
 @auth.route('/change-name', methods=['GET', 'POST'])
 @login_required
@@ -102,8 +102,8 @@ def change_name():
         db.session.add(user)
         db.session.commit()
         flash('Ваше имя успешно обновлено', 'success')
-        return redirect(url_for('main/index'))
-    return render_template('auth/change_name', form=form)
+        return redirect(url_for('main.index'))
+    return render_template('auth/change_name.html', form=form)
 
 @auth.route('/change-email', methods=['GET', 'POST'])
 @login_required
@@ -115,7 +115,7 @@ def change_email():
         send_email(email, 'Смена email', 'auth/email/change_email',\
                    user=current_user, token=token)
         flash(f'Пожалуйста, подтвердите новый email перейдя по ссылке, отправленной на {email}', 'info')
-    return redirect(url_for('auth/change_email'))        
+    return render_template('auth/change_email.html', form=form)       
 
 @auth.route('/change-email/<token>')
 @login_required

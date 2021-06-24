@@ -1,1 +1,5 @@
-{% extends 'base.html' %}
+<p>Уважаемый {{ user.name }},</p>
+<p>Для подтверждение нового email для <b>Avitoclone</b> 
+   перейдите по <a href="{{ url_for('auth.change_email', token=token, _external=True) }}">ссылке</a>.</p></p>
+<p>С Уважением,</p>
+<p>Поддержка Клиентов.</p>

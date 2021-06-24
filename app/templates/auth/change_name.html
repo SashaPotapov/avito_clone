@@ -1,1 +1,42 @@
 {% extends 'base.html' %}
+
+{% block page_content %}
+    <h1>Смена имени</h1>
+    <div class="row">
+        <div class="col-4">
+            
+            <form action="{{ url_for('auth.change_name') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.fname_new.label }}
+
+                    {% if form.fname_new.errors %}
+                        {{ form.fname_new(class='is-invalid form-control') }}
+                        <div class="invalid-feedback">
+                            {% for error in form.fname_new.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        <div>
+                    {% else %}
+                        {{ form.fname_new() }}
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    {{ form.lname_new.label }}
+
+                    {% if form.lname_new.errors %}
+                        {{ form.lname_new(class='is-invalid form-control') }}
+                        <div class="invalid-feedback">    
+                            {% for error in form.lname_new.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lname_new() }}
+                    {% endif %}
+                </div>
+                {{ form.submit() }}
+            </form>
+        </div>
+    </div>
+{% endblock page_content %}
