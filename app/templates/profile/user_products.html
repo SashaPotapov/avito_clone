@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'profile/user.html' %}
 
-{% block page_content %}
-    <h1>Мои объявления:</h1>
+{% block user_content %}
+    <h1>Мои объявления</h1>
     {% if products %}
         {% for product in products %}
             <h4>{{ product.title }}</h4>
@@ -10,4 +10,5 @@
     {% else %}
         <p>У вас нет ни одного объявления.</p>
     {% endif %}
-{% endblock page_content %}
+{% endblock user_content %}  
+

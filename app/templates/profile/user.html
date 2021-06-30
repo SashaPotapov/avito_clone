@@ -1,5 +1,18 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
-    <h1>Привет, {{ user.name }}!</h1>
+    <div class="row">
+        <div class="col-3">
+                <!-- Аватарка -->
+                <h4>{{ user.name }}</h4>
+                <a href="#" class="btn btn-light btn-sm" role="button">Редактировать профиль</a>
+                <hr>
+                <a href="{{ url_for('profile.user_products', user_id=current_user.id) }}">Мои объявления</a>
+                <br>
+                <a href="{{ url_for('auth.logout') }}">Выйти</a>
+        </div>
+        <div class="col-9">
+        {% block user_content %}{% endblock user_content %}
+        </div>
+    </div>
 {% endblock page_content %}

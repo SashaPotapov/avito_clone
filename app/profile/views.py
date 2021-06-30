@@ -10,16 +10,14 @@ from ..models import User, Product
 @profile.route('/profile/<int:user_id>')
 @login_required
 def user_profile(user_id):   
-    user = User.query.filter(User.id == user_id).first()
-    products = sorted(user.products, reverse=True)
-    if not user:
-        abort(404)
+    user = User.query.filter(User.id == user_id).first_or_404()
     if current_user != user:
         abort(404)
-    return render_template('profile/user.html', user=user, products=products)
+    return render_template('profile/user.html', user=user)
 
-@profile.route('/user_products')
+@profile.route('/profile/<int:user_id>/user_products')
 @login_required
-def user_products():
-    products = sorted(current_user.products, reverse=True)
-    return render_template('profile/user_products.html', products=products)
+def user_products(user_id):
+    user = User.query.filter(User.id == user_id).first_or_404()
+    products = sorted(user.products, reverse=True)
+    return render_template('profile/user_products.html', products=products, user=user)
