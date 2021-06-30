@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
@@ -62,7 +63,7 @@ class User(db.Model, UserMixin):
             return False
 
     def __repr__(self):
-        return f'<User {self.username} {self.id}>'
+        return f'<User {self.name} {self.id}>'
 
 class Product(db.Model):
     __tablename__ = 'products'
