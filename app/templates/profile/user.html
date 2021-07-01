@@ -3,15 +3,17 @@
 {% block page_content %}
     <div class="row">
         <div class="col-3">
-                <!-- Аватарка -->
+                <img src="/static/profile_image/default-avatar.jpg" class="rounded" weight="100" height="100">
+                <br>
                 <h4>{{ user.name }}</h4>
+                <p>{{ user.email }}</p>
                 <a href="#" class="btn btn-light btn-sm" role="button">Редактировать профиль</a>
                 <hr>
                 <a href="{{ url_for('profile.user_products', user_id=current_user.id) }}">Мои объявления</a>
                 <br>
                 <a href="{{ url_for('auth.logout') }}">Выйти</a>
         </div>
-        <div class="col-9">
+        <div class="col-9 shadow p-3 mb-5 bg-white rounded">
         {% block user_content %}{% endblock user_content %}
         </div>
     </div>

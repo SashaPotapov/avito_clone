@@ -4,8 +4,10 @@
     <h1>Мои объявления</h1>
     {% if products %}
         {% for product in products %}
-            <h4>{{ product.title }}</h4>
+            <h4><a href="{{ url_for('product', product_id=product.id) }}"></a>{{ product.title }}</h4>
             <img src="{{ product.link_photo }}" width="150" height="150">
+            <p>{{ product.published.strftime }}</p>
+            <hr>
         {% endfor %}
     {% else %}
         <p>У вас нет ни одного объявления.</p>
