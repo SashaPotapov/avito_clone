@@ -15,7 +15,7 @@ class RegForm(FlaskForm):
     fname = StringField('Введите ваше имя, которое будет видно другим пользователям*', 
         validators=[DataRequired(), Length(2, 64), 
                     Regexp('^[А-Яа-я]+$', 0,
-                            'Имя может содержать только буквы русского алфавита.')])
+                            'Имя может содержать только буквы русского алфавита.')], render_kw={'class': 'form-control'})
     lname = StringField('Введите вашу фамилию (опционально)', validators=[Optional(), Length(2, 64),
         Regexp('^[А-Яа-я]+$', 0,
                 'Фамилия может содержать только буквы русского алфавита.')], render_kw={'class': 'form-control'})
@@ -48,5 +48,5 @@ class ChangeNameForm(FlaskForm):
     
 class ChangeEmailForm(FlaskForm):
     email_new = StringField('E-mail', validators=[DataRequired(), Length(1, 64), Email()], render_kw={'class': 'form-control'})
-    submit = SubmitField('Сменить email'), render_kw={'class': 'btn btn-primary'}
+    submit = SubmitField('Сменить email', render_kw={'class': 'btn btn-primary'})
     
