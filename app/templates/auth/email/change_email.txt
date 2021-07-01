@@ -1,0 +1,9 @@
+Уважаемый {{ user.name }},
+
+Для подтверждение нового email для Avitoclone перейдите по ссылке:
+
+{{ url_for('auth.change_email', token=token, _external=True) }}
+
+С Уважением,
+
+Поддержка Клиентов.
