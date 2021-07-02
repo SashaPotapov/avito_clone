@@ -30,18 +30,19 @@ def save_photo(form_photo):
 @profile.route('/profile/create_product', methods=['GET', 'POST'])
 @login_required
 def create_product():   
+    user_id = current_user.id
     form = AddProdForm()
     if form.validate_on_submit():
         prod = Product(title=form.title.data, published=datetime.today().strftime('%d.%m.%Y %H:%M'),
                        price=form.price.data, description=form.description.data, address=form.address.data,
-                       category='Электронные книги', user_id=current_user.id)
+                       category='Электронные книги', user_id=user_id)
         db.session.add(prod)
         prod.avito_id = prod.id
         if form.link_photo.data:
             prod.link_photo = save_photo(form.link_photo.data)
         
         db.session.commit()
-        return redirect(url_for('profile.user_profile', user_id=current_user.id))
+        return redirect(url_for('profile.user_profile', user_id=user_id))
     return render_template('profile/create_product.html', form=form)
 
 @profile.route('/profile/<int:user_id>/user_products')
