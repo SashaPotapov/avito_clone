@@ -1,7 +1,7 @@
 from flask import request, render_template, url_for, abort
 from . import main
 from .. import db
-from ..models import Product
+from ..models import Product, User
 
 @main.route('/')
 @main.route('/index')
@@ -17,6 +17,7 @@ def index():
 @main.route('/product/<int:product_id>')
 def product_page(product_id):
     product = Product.query.filter(Product.id == product_id).first()
+    user = User.query.filter(User.id == product.user_id).first()
     if not product:
         abort(404)
-    return render_template('main/product.html', product=product, title=product.title)
+    return render_template('main/product.html', product=product, title=product.title, user=user)

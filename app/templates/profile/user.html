@@ -10,7 +10,7 @@
                 <p>{{ user.email }}</p>
                 <a href="#" class="btn btn-light btn-sm" role="button">Редактировать профиль</a>
                 <hr>
-                <a href="{{ url_for('profile.user_products', user_id=current_user.id) }}">Мои объявления</a>
+                <a href="{{ url_for('profile.user_products', user_id=user.id) }}">Мои объявления</a>
                 <br>
                 <a href="{{ url_for('auth.logout') }}">Выйти</a>
         </div>
