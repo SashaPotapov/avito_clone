@@ -33,7 +33,7 @@ def create_product():
     user_id = current_user.id
     form = AddProdForm()
     if form.validate_on_submit():
-        prod = Product(title=form.title.data, published=datetime.today().strftime('%d.%m.%Y %H:%M'),
+        prod = Product(title=form.title.data, published=datetime.today(),
                        price=form.price.data, description=form.description.data, address=form.address.data,
                        category='Электронные книги', user_id=user_id)
         db.session.add(prod)
