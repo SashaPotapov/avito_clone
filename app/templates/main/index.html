@@ -7,7 +7,7 @@
         <div class='col-6'>
             
             {% for product in products %}
-                <div class="item_card">
+                <div class="item_card border border shadow-sm p-3 mb-5 bg-white rounded">
                     <h4><a href="product/{{ product.id }}">{{ product.title }}</a></h4>
                     <img src="{{ product.link_photo }}" height="200" width="200">
                     <p>Описание: {{ product.description[:100] }}...</p>

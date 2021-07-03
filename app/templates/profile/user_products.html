@@ -1,0 +1,18 @@
+{% extends 'profile/user.html' %}
+
+{% block user_content %}
+    <div class="products shadow p-3 mb-5 bg-white rounded">
+        <h1>Мои объявления</h1>
+        {% if products %}
+            {% for product in products %}
+                <h4><a href="{{ url_for('main.product_page', product_id=product.id) }}">{{ product.title }}</a></h4>
+                <img src="{{ product.link_photo }}" width="150" height="150">
+                <p>{{ product.published }}</p>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>У вас нет ни одного объявления.</p>
+        {% endif %}
+    </div>
+{% endblock user_content %}  
+

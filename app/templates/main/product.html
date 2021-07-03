@@ -11,10 +11,12 @@
                 <p><em>Адрес: {{ product.address }}</em></p>
                 <hr>
                 <p>Описание: {{ product.description }}</p>
-                <hr>
             </div>
             <div class="col-4">
-                <h4>{{ product.price }} руб</h4>
+                <h4>{{ product.price }} ₽</h4>
+                <hr>
+                <p style="color: blue;"><b>{{ user.name }}</b></p>
+                <p>{{ user.email }}</p>
                 <hr>
                 <p>№{{ product.avito_id }}</p>
             </div>
