@@ -5,7 +5,7 @@
         <div class="row justify-content-start">
             <div class="col-4">
                 <h3>{{ product.title }}</h3>
-                <h6>Опубликовано: {{ product.published }}</h6>
+                <h6>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</h6>
                 <img src="{{ product.link_photo }}" height="280" weight="280">
                 <hr>
                 <p><em>Адрес: {{ product.address }}</em></p>

@@ -19,7 +19,7 @@ def user_profile(user_id):
 @login_required
 def user_products(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
-    products = sorted(user.products, reverse=True)
+    products = user.products[::-1]
     if current_user != user:
         abort(404)
     return render_template('profile/user_products.html', products=products, user=user)
