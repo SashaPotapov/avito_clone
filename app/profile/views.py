@@ -1,7 +1,7 @@
 import os
 import secrets 
 from datetime import datetime
-from flask import render_template, redirect, url_for, abort, current_app
+from flask import render_template, redirect, url_for, abort, current_app, flash
 from flask_login import login_required, current_user
 from flask_user import roles_required
 from . import profile
@@ -10,14 +10,13 @@ from .. import db
 from ..models import User, Product
 
 
-
 @profile.route('/profile/<int:user_id>')
 @login_required
 def user_profile(user_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
     if current_user != user:
         abort(404)
-    return render_template('profile/user.html', user=user)
+    return render_template('profile/user.html', user=user, title=user.name)
 
 def save_photo(form_photo):
     random_hex = secrets.token_hex(8)
@@ -40,10 +39,10 @@ def create_product():
         prod.avito_id = prod.id
         if form.link_photo.data:
             prod.link_photo = save_photo(form.link_photo.data)
-        
         db.session.commit()
-        return redirect(url_for('profile.user_profile', user_id=user_id))
-    return render_template('profile/create_product.html', form=form)
+        flash('Объявление успешно добавлено на площадку', 'success')
+        return redirect(url_for('profile.user_products', user_id=user_id))
+    return render_template('profile/create_product.html', form=form, title='Создать объявление')
 
 @profile.route('/profile/<int:user_id>/user_products')
 @login_required
@@ -52,5 +51,5 @@ def user_products(user_id):
     products = user.products[::-1]
     if current_user != user:
         abort(404)
-    return render_template('profile/user_products.html', products=products, user=user)
+    return render_template('profile/user_products.html', products=products, user=user, title='Объявления ' + user.name)
     

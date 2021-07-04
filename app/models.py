@@ -1,3 +1,5 @@
+import re
+from flask import url_for
 from flask_login import UserMixin
 from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -73,6 +75,11 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         return True
     
+    def get_avatar_link(self):
+        if self.avatar_link:
+            return url_for('static', filename='profile_image/' + self.avatar_link)
+        return url_for('static', filename='profile_image/' + 'default-avatar.jpg')
+    
     @staticmethod
     def check_user(token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -92,15 +99,24 @@ class Product(db.Model):
     avito_id = db.Column(db.String(64), unique=True)
     title = db.Column(db.String(64), nullable=False)
     published = db.Column(db.DateTime, nullable=False)
-    link_photo = db.Column(db.String(64), nullable=False)
+    link_photo = db.Column(db.String(64), nullable=True)
     price = db.Column(db.String(64), nullable=False)
     description = db.Column(db.Text, nullable=True)
     address = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+    def get_photo_link(self):
+        if self.link_photo:
+            check_url = re.compile(r'https:')
+            if check_url.search(self.link_photo):
+                return self.link_photo 
+            return url_for('static', filename='product_image/' + self.link_photo)
+        return url_for('static', filename='product_image/' + 'default-product-image.jpg')
+
     def __repr__(self):
         return f'<Product {self.title} {self.id}>'
+
 
 @login_manager.user_loader
 def load_user(user_id):
