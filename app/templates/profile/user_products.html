@@ -9,7 +9,7 @@
                 <img src="{{ product.get_photo_link() }}" width="150" height="150">
                 <p>{{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
                 <div style="overflow:auto">
-                    <a href="#" class="btn btn-primary float-end" id="button"  name="button" type="button">Редактировать</a>
+                    <a href="{{ url_for('profile.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-primary float-end" id="button"  name="button" type="button">Редактировать</a>
                 </div>
                 <hr>
             {% endfor %}
