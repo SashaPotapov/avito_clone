@@ -19,34 +19,33 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="text-end">
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0"> 
-                        {% if not current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.registration') }}">Зарегистрироваться</a>
-                        </li>
-                        {% else %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="{{ url_for('profile.user_profile', user_id=current_user.id) }}" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-                                {{ current_user.name }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <li><a class="dropdown-item" href="{{ url_for('profile.user_profile', user_id=current_user.id) }}">Мой профиль</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('profile.user_products', user_id=current_user.id) }}">Мои объявления</a></li>
-                                <li><a class="dropdown-item" href="#">Настройки</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-light" href="{{ url_for('profile.create_product') }}" role="button" >Разместить объявление</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav"> 
+                    {% if not current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.registration') }}">Зарегистрироваться</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{{ url_for('profile.user_profile', user_id=current_user.id) }}" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                            <img src="{{ current_user.get_avatar_link() }}" alt="" width="30" height="30" class="d-inline-block align-text-top">
+                            {{ current_user.name }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="{{ url_for('profile.user_profile', user_id=current_user.id) }}">Мой профиль</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile.user_products', user_id=current_user.id) }}">Мои объявления</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile.edit_profile', user_id=current_user.id) }}">Настройки</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-light" href="{{ url_for('profile.create_product', user_id=current_user.id) }}" role="button" >Разместить объявление</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>

@@ -1,1 +1,15 @@
-{% extends 'base.html' %}
+{% extends 'profile/user.html' %}
+
+{% block user_content %}
+    <h1>Настройки</h1>
+    <div class="changes shadow p-3 mb-5 bg-white rounded">
+        <div class="d-grid gap-3">
+            <a class="btn btn-outline-primary" href="{{ url_for('profile.change_name', user_id=user.id) }}" role="button">Изменить имя</a>
+            {% block change_username %}{% endblock change_username %}
+            <a class="btn btn-outline-primary" href="{{ url_for('profile.change_email', user_id=user.id) }}" role="button">Изменить email</a>
+            {% block change_email %}{% endblock change_email %}
+            <a class="btn btn-outline-primary" href="{{ url_for('profile.change_password', user_id=user.id) }}" role="button">Изменить пароль</a>
+            {% block change_password %}{% endblock change_password %}
+        </div>
+    </div>
+{% endblock user_content %}
