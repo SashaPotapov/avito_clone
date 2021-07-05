@@ -15,12 +15,23 @@ class AddProdForm(FlaskForm):
     # category
     submit = SubmitField('Добавить товар', render_kw={'class': 'btn btn-primary'})
 
+
+class EditProdForm(FlaskForm):
+    title = StringField('Название товара', validators=[DataRequired(), Length(1, 64)], render_kw={'class': 'form-control'})
+    price = DecimalField('Цена', validators=[DataRequired()], render_kw={'class': 'form-control'})
+    description = TextAreaField('Описание (опционально)', validators=[Optional()], render_kw={'class': 'form-control'})
+    address = StringField('Адрес (опционально)', validators=[Optional(), Length(1, 64)], render_kw={'class': 'form-control'})
+    link_photo = FileField('Загрузите новое изображение товара', validators=[FileAllowed(['jpg', 'png'])], render_kw={'class': 'form-control-file'})
+    submit = SubmitField('Изменить', render_kw={'class': 'btn btn-primary'})
+
+
 class ChangePassForm(FlaskForm):
     password_old = PasswordField('Введите старый пароль', validators=[DataRequired()], render_kw={'class': 'form-control'})
     password_new = PasswordField('Введите новый пароль', validators=[DataRequired(), EqualTo('pass_conf', 
                                                          message='Пароли не совпадают.'), Length(2, 64)], render_kw={'class': 'form-control'})
     pass_conf = PasswordField('Повторите новый пароль', validators=[DataRequired(), Length(2, 64)], render_kw={'class': 'form-control'})
     submit = SubmitField('Изменить', render_kw={'class': 'btn btn-primary'})
+    
     
 class ChangeNameForm(FlaskForm):
     fname_new = StringField('Введите новое имя', 

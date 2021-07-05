@@ -1,3 +1,4 @@
+from itertools import product
 import os
 import secrets 
 from datetime import datetime
@@ -5,7 +6,7 @@ from flask import render_template, redirect, url_for, abort, current_app, flash
 from flask_login import login_required, current_user
 from flask_user import roles_required
 from . import profile
-from .forms import AddProdForm, ChangePassForm, ChangeEmailForm, ChangeNameForm
+from .forms import AddProdForm, ChangePassForm, ChangeEmailForm, ChangeNameForm, EditProdForm
 from .. import db
 from ..email import send_email
 from ..models import User, Product
@@ -46,6 +47,33 @@ def create_product(user_id):
         flash('Объявление успешно добавлено на площадку', 'success')
         return redirect(url_for('profile.user_products', user_id=user.id))
     return render_template('profile/create_product.html', form=form, title='Создать объявление', user=user)
+
+@profile.route('/profile/<int:user_id>/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(user_id, product_id):   
+    user = User.query.filter(User.id == user_id).first_or_404()
+    prod = Product.query.filter(Product.id == product_id).first_or_404()
+    if current_user != user:
+        abort(404)
+    form = EditProdForm()
+    if form.validate_on_submit():
+        prod.title = form.title.data
+        prod.price = form.price.data
+        prod.description = form.description.data
+        prod.address = form.address.data
+        
+        if form.link_photo.data:
+            prod.link_photo = save_photo(form.link_photo.data)
+
+        db.session.add(prod)
+        db.session.commit()
+        flash('Объявление успешно обновлено', 'success')
+        return redirect(url_for('profile.user_products', user_id=user.id))
+    form.title.data = prod.title
+    form.price.data = int(prod.price)
+    form.description.data = prod.description
+    form.address.data= prod.address
+    return render_template('profile/edit_product.html', form=form, title='Редактировать объявление', user=user, product=prod)
 
 @profile.route('/profile/<int:user_id>/user_products')
 @login_required
