@@ -1,7 +1,7 @@
 import os
 import secrets 
 from datetime import datetime
-from flask import render_template, redirect, url_for, abort, current_app, flash
+from flask import render_template, redirect, url_for, abort, current_app, flash, request
 from flask_login import login_required, current_user
 from . import post
 from .forms import AddProdForm, EditProdForm
@@ -30,6 +30,12 @@ def create_product(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
     if current_user != user:
         abort(404)
+    if not user.confirmed:
+        flash('Пожалуйста, подтвердите аккаунт, чтобы добавить объявление', 'warning')
+        next = request.args.get('next')
+        if next is None:
+            next = url_for('main.index') 
+        return redirect(next)
     form = AddProdForm()
     if form.validate_on_submit():
         prod = Product(title=form.title.data, published=datetime.today(),
