@@ -20,4 +20,4 @@ def product_page(product_id):
     user = User.query.filter(User.id == product.user_id).first()
     if not product:
         abort(404)
-    return render_template('main/product.html', product=product, title=product.title, user=user)
+    return render_template('main/product.html', product=product, user=user)
