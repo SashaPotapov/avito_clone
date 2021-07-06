@@ -3,8 +3,9 @@
 {% block user_content %}
     <div class="products shadow p-3 mb-5 bg-white rounded">
         <h1>{{ title }}</h1>
-        <form action="{{ url_for('profile.create_product', user_id=user.id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
+            <img src="{{ product.get_photo_link() }}" height="280" weight="280">
             <div class="mb-3">
                 {{ form.link_photo.label }}
                 {{ form.link_photo() }}
