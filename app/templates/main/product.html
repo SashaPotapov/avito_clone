@@ -6,7 +6,7 @@
             <div class="col-4">
                 <h3>{{ product.title }}</h3>
                 <h6>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</h6>
-                <img src="{{ product.link_photo }}" height="280" weight="280">
+                <img src="{{ product.get_photo_link() }}" height="280" weight="280">
                 <hr>
                 <p><em>Адрес: {{ product.address }}</em></p>
                 <hr>
@@ -18,7 +18,7 @@
                 <p style="color: blue;"><b>{{ user.name }}</b></p>
                 <p>{{ user.email }}</p>
                 <hr>
-                <p>№{{ product.avito_id }}</p>
+                <p>№{{ product.id }}</p>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@
 {% block page_content %}
     <div class="row">
         <div class="col-3">
-                <img src="/static/profile_image/default-avatar.jpg" class="rounded" weight="100" height="100">
+                <img src="{{ user.get_avatar_link() }}" class="rounded" weight="100" height="100">
                 <br>
                 <h4>{{ user.name }}</h4>
                 <p>{{ user.email }}</p>
