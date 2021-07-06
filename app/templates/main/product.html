@@ -15,10 +15,10 @@
             <div class="col-4">
                 <h4>{{ product.price }} ₽</h4>
                 <hr>
-                <p style="color: blue;"><b>{{ user.name }}</b></p>
+                <p style="color: blue;"><b>Автор: <a href="{{ url_for('profile.user_profile', user_id=product.user_id) }}">{{ user.name }}</a></b></p>
                 <p>{{ user.email }}</p>
                 <hr>
-                <p>№{{ product.id }}</p>
+                <p>Объявление: №{{ product.id }}</p>
             </div>
         </div>
     </div>
