@@ -2,19 +2,29 @@
 
 {% block user_content %}
     <div class="products shadow p-3 mb-5 bg-white rounded">
-        <h1>Мои объявления</h1>
+        {% if user == current_user %}
+            <h1>Мои объявления</h1>
+        {% else %}
+            <h1>Объявления {{ user.name }}</h1>
+        {% endif %}
         {% if products %}
             {% for product in products %}
                 <h4><a href="{{ url_for('main.product_page', product_id=product.id) }}">{{ product.title }}</a></h4>
                 <img src="{{ product.get_photo_link() }}" width="150" height="150">
                 <p>{{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
-                <div style="overflow:auto">
-                    <a href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-primary float-end" id="button"  name="button" type="button">Редактировать</a>
-                </div>
-                <hr>
+                {% if user == current_user %}
+                    <div style="overflow:auto">
+                        <a href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-primary float-end" id="button"  name="button" type="button">Редактировать</a>
+                    </div>
+                    <hr>
+                {% endif %}
             {% endfor %}
         {% else %}
-            <p>У вас нет ни одного объявления.</p>
+            {% if user == current_user %}
+                <p>У вас нет ни одного объявления.</p>
+            {% else %}
+                <p>Нет ни одного объявления.</p>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock user_content %}  

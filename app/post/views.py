@@ -9,13 +9,11 @@ from .. import db
 from ..models import User, Product
 
 
-@post.route('/post/<int:user_id>/user_products')
+@post.route('/profile/<int:user_id>/user_products')
 @login_required
 def user_products(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
     products = user.products[::-1]
-    if current_user != user:
-        abort(404)
     return render_template('post/user_products.html', products=products, user=user, title='Объявления ' + user.name)
 
 def save_photo(form_photo):
@@ -26,7 +24,7 @@ def save_photo(form_photo):
     form_photo.save(photo_path)
     return photo_n
     
-@post.route('/post/<int:user_id>/create_product', methods=['GET', 'POST'])
+@post.route('/profile/<int:user_id>/create_product', methods=['GET', 'POST'])
 @login_required
 def create_product(user_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
@@ -46,7 +44,7 @@ def create_product(user_id):
         return redirect(url_for('post.user_products', user_id=user.id))
     return render_template('post/create_product.html', form=form, title='Создать объявление', user=user)
 
-@post.route('/post/<int:user_id>/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@post.route('/profile/<int:user_id>/edit_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(user_id, product_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
