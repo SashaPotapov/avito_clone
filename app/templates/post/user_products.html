@@ -13,8 +13,21 @@
                 <img src="{{ product.get_photo_link() }}" width="150" height="150">
                 <p>{{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
                 {% if user == current_user %}
-                    <div style="overflow:auto">
-                        <a href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-primary float-end" id="button"  name="button" type="button">Редактировать</a>
+                    <div style="overflow:auto">        
+                        <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-primary float-end" id="button"  
+                        name="button" type="button">Редактировать</a> 
+                        
+                        {% if not product.hidden %}
+                            <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-secondary float-end" id="button"  
+                            name="button" type="button" data-bs-toggle="modal" data-bs-target="#HideModal">Скрыть</a> 
+                        {% else %}
+                            <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-secondary float-end" id="button"  
+                            name="button" type="button">Показать</a> 
+                        {% endif %}
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#HideModal">Скрыть объявление</button>
+                        <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-danger float-end" id="button"  
+                        name="button" type="button" data-bs-toggle="modal" data-bs-target="#DelModal">Удалить</a>
                     </div>
                     <hr>
                 {% endif %}
@@ -27,5 +40,43 @@
             {% endif %}
         {% endif %}
     </div>
+    
+  <!-- Modal Hide -->
+  <div class="modal fade" id="HideModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Вы уверены что хотите скрыть объявление?
+        </div>
+        <div class="modal-footer">
+          <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
+          <a type="button" class="btn btn-primary">Скрыть объявление</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Delete -->
+  <div class="modal fade" id="DelModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Вы уверены что хотите удалить объявление?<br>Его уже нельзя будет восстановить.
+        </div>
+        <div class="modal-footer">
+          <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
+          <a type="button" class="btn btn-danger">Удалить объявление</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock user_content %}  
 
