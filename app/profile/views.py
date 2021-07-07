@@ -1,11 +1,10 @@
 import os
 import secrets 
-from datetime import datetime
 from flask import render_template, redirect, url_for, abort, current_app, flash
 from flask_login import login_required, current_user
 from flask_user import roles_required
 from . import profile
-from .forms import AddProdForm, ChangePassForm, ChangeEmailForm, ChangeNameForm, EditProdForm
+from .forms import ChangePassForm, ChangeEmailForm, ChangeNameForm
 from .. import db
 from ..email import send_email
 from ..models import User, Product
