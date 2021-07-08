@@ -25,7 +25,6 @@
                             name="button" type="button">Показать</a> 
                         {% endif %}
 
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#HideModal">Скрыть объявление</button>
                         <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-danger float-end" id="button"  
                         name="button" type="button" data-bs-toggle="modal" data-bs-target="#DelModal{{ product.id }}">Удалить</a>
                     </div>
