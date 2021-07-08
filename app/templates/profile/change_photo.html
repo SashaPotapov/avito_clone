@@ -1,0 +1,17 @@
+{% extends 'profile/edit_profile.html' %}
+
+{% block change_photo %}
+    <form action="{{ url_for('profile.change_photo', user_id=user.id) }}" enctype="multipart/form-data" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.avatar_link.label }}
+            {{ form.avatar_link() }}
+            {% if form.avatar_link.errors %}
+                {% for error in form.avatar_link.errors %}
+                    <span class="text-danger">{{ error }}</span></br>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {{ form.submit() }}
+    </form>
+{% endblock change_photo%}

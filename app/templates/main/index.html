@@ -10,7 +10,7 @@
             {% if not product.hidden %}
                 <div class="item_card border border shadow-sm p-3 mb-5 bg-white rounded">
                     <h4><a href="product/{{ product.id }}">{{ product.title }}</a></h4>
-                    <img src="{{ product.get_photo_link() }}" height="200" width="200">
+                    <img src="{{ product.get_photo_link() }}" width="200" height="200">
                     <p>Описание: {{ product.description[:100] }}...</p>
                     <p>Адрес: {{ product.address }}</p>
                     <p><em>Цена: {{ product.price }} руб.</em></p>

@@ -4,7 +4,7 @@ from flask import render_template, redirect, url_for, abort, current_app, flash
 from flask_login import login_required, current_user
 from flask_user import roles_required
 from . import profile
-from .forms import ChangePassForm, ChangeEmailForm, ChangeNameForm
+from .forms import ChangePassForm, ChangeEmailForm, ChangeNameForm, ChangePhotoForm
 from .. import db
 from ..email import send_email
 from ..models import User, Product
@@ -14,7 +14,9 @@ from ..models import User, Product
 @login_required
 def user_profile(user_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
-    return render_template('profile/user.html', user=user, title=user.name)
+    if current_user != user:
+        abort(404)
+    return render_template('profile/user.html', user=user)
 
 def save_photo(form_photo):
     random_hex = secrets.token_hex(8)
@@ -30,9 +32,9 @@ def edit_profile(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
     if current_user != user:
         abort(404)
-    return render_template('profile/edit_profile.html', user=user)
+    return render_template('profile/edit_profile.html', user=user, title="Редактировать профиль")
 
-@profile.route('/profile/<int:user_id>/edit_profile/change-password', methods=['GET', 'POST'])
+@profile.route('/profile/<int:user_id>/edit_profile/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
@@ -50,7 +52,7 @@ def change_password(user_id):
             flash('Неверный пароль')
     return render_template('profile/change_password.html', form=form, user=user)
 
-@profile.route('/profile/<int:user_id>/edit_profile/change-name', methods=['GET', 'POST'])
+@profile.route('/profile/<int:user_id>/edit_profile/change_name', methods=['GET', 'POST'])
 @login_required
 def change_name(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
@@ -65,7 +67,7 @@ def change_name(user_id):
         return redirect(url_for('profile.edit_profile', user_id=user.id))
     return render_template('profile/change_name.html', form=form, user=user)
 
-@profile.route('/profile/<int:user_id>/edit_profile/change-email', methods=['GET', 'POST'])
+@profile.route('/profile/<int:user_id>/edit_profile/change_email', methods=['GET', 'POST'])
 @login_required
 def change_email(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
@@ -80,7 +82,7 @@ def change_email(user_id):
         flash(f'Пожалуйста, подтвердите новый email перейдя по ссылке, отправленной на {email}', 'info')
     return render_template('profile/change_email.html', form=form, user=user)       
 
-@profile.route('/profile/<int:user_id>/edit_profile/change-email/<token>')
+@profile.route('/profile/<int:user_id>/edit_profile/change_email/<token>')
 @login_required
 def change_email_confirmation(user_id, token):
     user = User.query.filter(User.id == user_id).first_or_404()
@@ -91,5 +93,19 @@ def change_email_confirmation(user_id, token):
         flash('Ваш email успешно обновлен', 'success')
     else:
         flash('Ссылка на подтверждение истекла. Пожалуйста, отправьте подтверждение еще раз', 'warning')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('profile.edit_profile'))
 
+@profile.route('/profile/<int:user_id>/edit_profile/change_photo', methods=['GET', 'POST'])
+@login_required
+def change_photo(user_id):
+    user = User.query.filter(User.id == user_id).first_or_404()
+    if current_user != user:
+        abort(404)
+    form = ChangePhotoForm()
+    if form.validate_on_submit():
+        if form.avatar_link.data:
+            user.avatar_link = save_photo(form.avatar_link.data)
+        db.session.add(user)
+        db.session.commit()
+        flash("Изображение успешно обновлено", 'success')
+    return render_template('profile/change_photo.html', user=user, form=form)
