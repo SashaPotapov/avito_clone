@@ -7,6 +7,7 @@
         <div class='col-6'>
             
             {% for product in products %}
+            {% if not product.hidden %}
                 <div class="item_card border border shadow-sm p-3 mb-5 bg-white rounded">
                     <h4><a href="product/{{ product.id }}">{{ product.title }}</a></h4>
                     <img src="{{ product.get_photo_link() }}" height="200" width="200">
@@ -15,6 +16,7 @@
                     <p><em>Цена: {{ product.price }} руб.</em></p>
                     <p>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
                 </div>
+            {% endif %}  
             {% endfor %}  
         </div>
         <div class="col-3">

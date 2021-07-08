@@ -55,7 +55,7 @@ def create_product(user_id):
 def edit_product(user_id, product_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
     prod = Product.query.filter(Product.id == product_id).first_or_404()
-    if current_user != user:
+    if current_user != user or current_user.id != prod.user_id:
         abort(404)
     form = EditProdForm()
     if form.validate_on_submit():
@@ -77,3 +77,40 @@ def edit_product(user_id, product_id):
     form.address.data= prod.address
     return render_template('post/edit_product.html', form=form, title='Редактировать объявление', user=user, product=prod)
 
+@post.route('/profile/<int:user_id>/hide_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def hide_product(user_id, product_id): 
+    user = User.query.filter(User.id == user_id).first_or_404()
+    prod = Product.query.filter(Product.id == product_id).first_or_404()
+    if current_user != user or current_user.id != prod.user_id:
+        abort(404)
+    prod.hidden = True
+    db.session.add(prod)
+    db.session.commit()
+    flash('Объявление скрыто из общего поиска', 'success')
+    return redirect(url_for('post.user_products', user_id=user.id))
+
+@post.route('/profile/<int:user_id>/show_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def show_product(user_id, product_id): 
+    user = User.query.filter(User.id == user_id).first_or_404()
+    prod = Product.query.filter(Product.id == product_id).first_or_404()
+    if current_user != user or current_user.id != prod.user_id:
+        abort(404)
+    prod.hidden = False
+    db.session.add(prod)
+    db.session.commit()
+    flash('Объявление снова доступно всем', 'success')
+    return redirect(url_for('post.user_products', user_id=user.id))
+
+@post.route('/profile/<int:user_id>/delete_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def delete_product(user_id, product_id): 
+    user = User.query.filter(User.id == user_id).first_or_404()
+    prod = Product.query.filter(Product.id == product_id).first_or_404()
+    if current_user != user or current_user.id != prod.user_id:
+        abort(404)
+    db.session.delete(prod)
+    db.session.commit()
+    flash('Объявление удалено', 'warning')
+    return redirect(url_for('post.user_products', user_id=user.id))
