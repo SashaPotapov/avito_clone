@@ -7,6 +7,7 @@
         {% else %}
             <h1>Объявления {{ user.name }}</h1>
         {% endif %}
+        <hr>
         {% if products %}
             {% for product in products %}
                 <h4><a href="{{ url_for('main.product_page', product_id=product.id) }}">{{ product.title }}</a></h4>
@@ -77,7 +78,32 @@
             {% endif %}
         {% endif %}
     </div>
-    
-  
-{% endblock user_content %}  
 
+    {% if products|length > 5%}
+      <div class="row">
+        <div class="col-3">
+        </div>
+        <div class="col-6">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item {% if not pagination.has_prev %} disabled {% endif %}"  >
+                        <a class="page-link" href="{% if pagination.has_prev %} {{ prev_url }} {% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% for p in range(1, pagination.pages + 1) %}
+                        <li class="page-item {% if pagination.page == p %} active aria-current="page"{% endif %}"><a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                    {% endfor %}
+                    <li class="page-item {% if not pagination.has_next %} disabled {% endif %}">
+                        <a class="page-link" href="{% if pagination.has_next %} {{ next_url }} {% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+          <div class="col-3">
+        </div>
+      </div>
+    {% endif %}
+{% endblock user_content %}  

@@ -2,7 +2,7 @@
 
 Для подтверждение нового email для Avitoclone перейдите по ссылке:
 
-{{ url_for('auth.change_email', token=token, _external=True) }}
+{{ url_for('profile.change_email_confirmation', token=token, _external=True, user_id=current_user.id) }}
 
 С Уважением,
 

@@ -13,8 +13,13 @@ from ..models import User, Product
 @login_required
 def user_products(user_id):
     user = User.query.filter(User.id == user_id).first_or_404()
-    products = user.products[::-1]
-    return render_template('post/user_products.html', products=products, user=user, title='Объявления ' + user.name)
+    page = request.args.get('page', 1, type=int)
+    pagination = Product.query.filter(Product.user_id==user.id).order_by(Product.published.desc()).paginate(page, error_out=False, per_page=5)
+    products = pagination.items
+    next_url = url_for('post.user_products', user_id=user.id, page=pagination.next_num)
+    prev_url = url_for('post.user_products', user_id=user.id, page=pagination.prev_num)
+    return render_template('post/user_products.html', products=products, user=user, title='Объявления ' + user.name,
+                            next_url=next_url, prev_url=prev_url, pagination=pagination)
 
 def save_photo(form_photo):
     random_hex = secrets.token_hex(8)

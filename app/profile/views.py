@@ -7,7 +7,7 @@ from . import profile
 from .forms import ChangePassForm, ChangeEmailForm, ChangeNameForm, ChangePhotoForm
 from .. import db
 from ..email import send_email
-from ..models import User, Product
+from ..models import User
 
 
 @profile.route('/profile/<int:user_id>')
@@ -93,7 +93,7 @@ def change_email_confirmation(user_id, token):
         flash('Ваш email успешно обновлен', 'success')
     else:
         flash('Ссылка на подтверждение истекла. Пожалуйста, отправьте подтверждение еще раз', 'warning')
-    return redirect(url_for('profile.edit_profile'))
+    return redirect(url_for('profile.edit_profile', user_id=user.id))
 
 @profile.route('/profile/<int:user_id>/edit_profile/change_photo', methods=['GET', 'POST'])
 @login_required
