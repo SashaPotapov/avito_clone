@@ -25,51 +25,49 @@
                             name="button" type="button">Показать</a> 
                         {% endif %}
 
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#HideModal">Скрыть объявление</button>
                         <a style="margin: 0 1px" href="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" class="btn btn-danger float-end" id="button"  
                         name="button" type="button" data-bs-toggle="modal" data-bs-target="#DelModal{{ product.id }}">Удалить</a>
                     </div>
                     <hr>
-                {% endif %}
-
-              <!-- Modal Hide -->
-              <div class="modal fade" id="HideModal{{ product.id }}" tabindex="-1" aria-labelledby="HideModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                      Вы уверены что хотите скрыть объявление {{ product.title }} от {{ product.published.strftime('%d.%m.%Y %H:%M') }} из общего поиска?
-                    </div>
-                    <div class="modal-footer">
-                      <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
-                      <a href="{{ url_for('post.hide_product', user_id=user.id, product_id=product.id) }}" type="button" class="btn btn-primary">Скрыть объявление</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Modal Delete -->
-              <div class="modal fade" id="DelModal{{ product.id }}" tabindex="-1" aria-labelledby="DelModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                      Вы уверены что хотите удалить объявление?<br>Его уже нельзя будет восстановить.
-                    </div>
-                    <div class="modal-footer">
-                      <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
-                      <a href="{{ url_for('post.delete_product', user_id=user.id, product_id=product.id) }}" type="button" class="btn btn-danger">Удалить объявление</a>
+                
+                <!-- Modal Hide -->
+                <div class="modal fade" id="HideModal{{ product.id }}" tabindex="-1" aria-labelledby="HideModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-center">
+                        Вы уверены что хотите скрыть объявление {{ product.title }} от {{ product.published.strftime('%d.%m.%Y %H:%M') }} из общего поиска?
+                      </div>
+                      <div class="modal-footer">
+                        <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
+                        <a href="{{ url_for('post.hide_product', user_id=user.id, product_id=product.id) }}" type="button" class="btn btn-primary">Скрыть объявление</a>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
+                <!-- Modal Delete -->
+                <div class="modal fade" id="DelModal{{ product.id }}" tabindex="-1" aria-labelledby="DelModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Подтверждение</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-center">
+                        Вы уверены что хотите удалить объявление?<br>Его уже нельзя будет восстановить.
+                      </div>
+                      <div class="modal-footer">
+                        <a type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</a>
+                        <a href="{{ url_for('post.delete_product', user_id=user.id, product_id=product.id) }}" type="button" class="btn btn-danger">Удалить объявление</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
             {% endfor %}
         {% else %}
             {% if user == current_user %}
