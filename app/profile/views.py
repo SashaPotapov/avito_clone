@@ -1,11 +1,10 @@
 import os
 import secrets 
-from datetime import datetime
 from flask import render_template, redirect, url_for, abort, current_app, flash
 from flask_login import login_required, current_user
 from flask_user import roles_required
 from . import profile
-from .forms import AddProdForm, ChangePassForm, ChangeEmailForm, ChangeNameForm, ChangePhotoForm
+from .forms import ChangePassForm, ChangeEmailForm, ChangeNameForm, ChangePhotoForm
 from .. import db
 from ..email import send_email
 from ..models import User, Product
@@ -26,35 +25,6 @@ def save_photo(form_photo):
     photo_path = os.path.join(current_app.root_path, 'static/profile_image/', photo_n)
     form_photo.save(photo_path)
     return photo_n
-    
-@profile.route('/profile/<int:user_id>/create_product', methods=['GET', 'POST'])
-@login_required
-def create_product(user_id):   
-    user = User.query.filter(User.id == user_id).first_or_404()
-    if current_user != user:
-        abort(404)
-    form = AddProdForm()
-    if form.validate_on_submit():
-        prod = Product(title=form.title.data, published=datetime.today(),
-                       price=form.price.data, description=form.description.data, address=form.address.data,
-                       category='Электронные книги', user_id=user.id)
-        db.session.add(prod)
-        prod.avito_id = prod.id
-        if form.link_photo.data:
-            prod.link_photo = save_photo(form.link_photo.data)
-        db.session.commit()
-        flash('Объявление успешно добавлено на площадку', 'success')
-        return redirect(url_for('profile.user_products', user_id=user.id))
-    return render_template('profile/create_product.html', form=form, title='Создать объявление', user=user)
-
-@profile.route('/profile/<int:user_id>/user_products')
-@login_required
-def user_products(user_id):
-    user = User.query.filter(User.id == user_id).first_or_404()
-    products = user.products[::-1]
-    if current_user != user:
-        abort(404)
-    return render_template('profile/user_products.html', products=products, user=user)
     
 @profile.route('/profile/<int:user_id>/edit_profile')
 @login_required

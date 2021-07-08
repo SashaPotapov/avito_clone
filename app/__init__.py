@@ -32,4 +32,7 @@ def create_app(config_name):
     from .profile import profile as profile_blueprint
     app.register_blueprint(profile_blueprint)
 
+    from .post import post as post_blueprint
+    app.register_blueprint(post_blueprint)
+    
     return app

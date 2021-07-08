@@ -105,7 +105,8 @@ class Product(db.Model):
     address = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
+    hidden = db.Column(db.Boolean, default=False)
+    
     def get_photo_link(self):
         if self.link_photo:
             check_url = re.compile(r'https:')

@@ -6,14 +6,6 @@ from wtforms.validators import DataRequired, Length, Regexp, Optional, Email, Eq
 from wtforms import ValidationError
 from ..models import User
 
-class AddProdForm(FlaskForm):
-    title = StringField('Название товара', validators=[DataRequired(), Length(1, 64)], render_kw={'class': 'form-control'})
-    price = DecimalField('Цена', validators=[DataRequired()], render_kw={'class': 'form-control'})
-    description = TextAreaField('Описание (опционально)', validators=[Optional()], render_kw={'class': 'form-control'})
-    address = StringField('Адрес (опционально)', validators=[Optional(), Length(1, 64)], render_kw={'class': 'form-control'})
-    link_photo = FileField('Загрузите изображение товара', validators=[FileAllowed(['jpg', 'png'])], render_kw={'class': 'form-control-file'})
-    # category
-    submit = SubmitField('Добавить товар', render_kw={'class': 'btn btn-primary'})
 
 
 class ChangePassForm(FlaskForm):
@@ -23,7 +15,7 @@ class ChangePassForm(FlaskForm):
     pass_conf = PasswordField('Повторите новый пароль', validators=[DataRequired(), Length(2, 64)], render_kw={'class': 'form-control'})
     submit = SubmitField('Изменить', render_kw={'class': 'btn btn-primary'})
 
-  
+
 class ChangeNameForm(FlaskForm):
     fname_new = StringField('Введите новое имя', 
         validators=[DataRequired(), Length(2, 64), 
