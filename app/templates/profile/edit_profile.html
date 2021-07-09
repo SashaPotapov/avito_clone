@@ -1,1 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'profile/user.html' %}
+
+{% block user_content %}
+    <h1>Настройки</h1>
+    <div class="changes shadow p-3 mb-5 bg-white rounded">
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-dark">Изображение <a href="{{ url_for('profile.change_photo', user_id=user.id) }}">Изменить</a></li>
+            {% block change_photo %}{% endblock change_photo %}
+            <li class="list-group-item list-group-item-dark">Имя <a href="{{ url_for('profile.change_name', user_id=user.id) }}">Изменить</a></li>
+            {% block change_username %}{% endblock change_username %}
+            <li class="list-group-item list-group-item-dark">Email <a href="{{ url_for('profile.change_email', user_id=user.id) }}">Изменить</a></li>
+            {% block change_email %}{% endblock change_email %}
+            <li class="list-group-item list-group-item-dark">Пароль <a href="{{ url_for('profile.change_password', user_id=user.id) }}">Изменить</a></li>
+            {% block change_password %}{% endblock change_password %}
+        </ul>
+    </div>
+{% endblock user_content %}

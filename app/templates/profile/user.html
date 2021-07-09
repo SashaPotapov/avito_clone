@@ -3,15 +3,24 @@
 {% block page_content %}
     <div class="row">
         <div class="col-3">
-                <img src="{{ user.get_avatar_link() }}" class="rounded" weight="100" height="100">
+                <img src="{{ user.get_avatar_link() }}" class="rounded-circle" weight="100" height="100">
                 <br>
                 <h4>{{ user.name }}</h4>
                 <p>{{ user.email }}</p>
-                <a href="#" class="btn btn-light btn-sm" role="button">Редактировать профиль</a>
-                <hr>
-                <a href="{{ url_for('profile.user_products', user_id=user.id) }}">Мои объявления</a>
-                <br>
-                <a href="{{ url_for('auth.logout') }}">Выйти</a>
+                {% if user == current_user %}
+                    <a href="{{ url_for('profile.edit_profile', user_id=user.id) }}" class="btn btn-light btn-sm" role="button">Редактировать профиль</a>
+                    <hr>
+                    {% if not user.confirmed %}
+                        <a href="{{ url_for('auth.resend_email_confirmation') }}">Подтвердить email</a>
+                        <br>
+                    {% endif %}
+                    <a href="{{ url_for('post.user_products', user_id=user.id) }}">Мои объявления</a>
+                    <br>
+                    <a href="{{ url_for('auth.logout') }}">Выйти</a>
+                {% else %}
+                    <hr>
+                    <a href="{{ url_for('post.user_products', user_id=user.id) }}">Объявления {{ user.name }}</a>
+                {% endif %}
         </div>
         <div class="col-9">
         {% block user_content %}{% endblock user_content %}

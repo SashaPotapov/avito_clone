@@ -1,0 +1,78 @@
+{% extends 'profile/user.html' %}
+
+{% block user_content %}
+    <div class="products shadow p-3 mb-5 bg-white rounded">
+        <h1>{{ title }}</h1>
+        <form action="{{ url_for('post.edit_product', user_id=user.id, product_id=product.id) }}" method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <img src="{{ product.get_photo_link() }}" height="280" weight="280">
+            <div class="mb-3">
+                {{ form.link_photo.label }}
+                {{ form.link_photo() }}
+                {% if form.link_photo.errors %}
+                    {% for error in form.link_photo.errors %}
+                        <span class="text-danger">{{ error }}</span></br>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.title.label }}
+
+                {% if form.title.errors %}
+                    {{ form.title(class='is-invalid form-control') }}
+                    <div class="invalid-feedback">
+                        {% for error in form.title.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    <div>
+                {% else %}
+                    {{ form.title() }}
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.price.label }}
+
+                {% if form.price.errors %}
+                    {{ form.price(class='is-invalid form-control') }}
+                    <div class="invalid-feedback">    
+                        {% for error in form.price.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.price() }}
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.description.label }}
+
+                {% if form.description.errors %}
+                    {{ form.description(class="is_invalid form-control") }}
+                    <div class="invalid-feedback">    
+                        {% for error in form.description.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.description() }}
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ form.address.label }}
+
+                {% if form.address.errors %}
+                    {{ form.address(class='is-invalid form-control') }}
+                    <div class="invalid-feedback">    
+                        {% for error in form.address.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.address() }}
+                {% endif %}
+            </div>
+            
+            {{ form.submit() }}
+        </form>
+    </div>
+{% endblock user_content %}

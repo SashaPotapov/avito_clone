@@ -1,0 +1,22 @@
+{% extends 'profile/edit_profile.html' %}
+
+{% block change_email %}
+    <form action="{{ url_for('profile.change_email', user_id=user.id) }}" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.email_new.label }}
+
+            {% if form.email_new.errors %}
+                {{ form.email_new(class='is-invalid form-control') }}
+                <div class="invalid-feedback">
+                    {% for error in form.email_new.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                <div>
+            {% else %}
+                {{ form.email_new() }}
+            {% endif %}
+        </div>
+        {{ form.submit() }}
+    </form>
+{% endblock change_email %}
