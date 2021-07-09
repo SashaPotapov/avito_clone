@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from . import db, login_manager
+from datetime import datetime
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -15,6 +17,7 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'<Role {self.name} {self.id}>'
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -93,6 +96,7 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.name} {self.id}>'
 
+
 class Product(db.Model):
     __tablename__ = 'products'
     id = db.Column(db.Integer, primary_key=True)
@@ -122,3 +126,22 @@ class Product(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    news_id = db.Column(
+        db.Integer,
+        db.ForeignKey('products.id', ondelete='CASCADE'),
+        index=True
+    )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        index=True
+    )
+
+    def __repr__(self):
+        return f'<Comment {self.id}>'
