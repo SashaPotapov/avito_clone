@@ -1,7 +1,7 @@
 import re
 from flask import url_for
 from flask_login import UserMixin
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
@@ -119,6 +119,9 @@ class Product(db.Model):
             return url_for('static', filename='product_image/' + self.link_photo)
         return url_for('static', filename='product_image/' + 'default-product-image.jpg')
 
+    def comments_count(self):
+        return Comment.query.filter(Comment.product_id == self.id).count()
+
     def __repr__(self):
         return f'<Product {self.title} {self.id}>'
 
@@ -129,10 +132,11 @@ def load_user(user_id):
 
 
 class Comment(db.Model):
+    __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    news_id = db.Column(
+    product_id = db.Column(
         db.Integer,
         db.ForeignKey('products.id', ondelete='CASCADE'),
         index=True
@@ -142,6 +146,8 @@ class Comment(db.Model):
         db.ForeignKey('users.id', ondelete='CASCADE'),
         index=True
     )
+    product = relationship('Product', backref='comments')
+    user = relationship('User', backref='comments')
 
     def __repr__(self):
         return f'<Comment {self.id}>'

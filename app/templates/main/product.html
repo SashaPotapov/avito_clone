@@ -3,7 +3,7 @@
 {% block page_content %}
     <div class="row">
         <div class="row justify-content-start">
-            <div class="col-4">
+            <div class="col-md-4">
                 <h3>{{ product.title }}</h3>
                 <h6>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</h6>
                 <img src="{{ product.get_photo_link() }}" height="280" weight="280">
@@ -25,6 +25,39 @@
                         name="button" type="button">Редактировать</a> 
                     </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="row justify-content-start">
+            <div class="col-md-8">
+                <hr>
+                {% if product.comments %}
+                    <h3>Комментарии({{ product.comments_count() }}):</h3>
+                    {% for comment in product.comments %}
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="card-text">{{ comment.text }}</p>
+                                <p class="card-text">
+                                    <small>Опубликовано: {{ comment.created.strftime('%d.%m.%Y') }} | 
+                                        Автор:  
+                                        <img src="{{ comment.user.get_avatar_link() }}" width="25" height="25" class="d-inline-block align-text-top rounded-circle">
+                                        <a href="{{ url_for('profile.user_profile', user_id=product.user_id) }}">{{ comment.user.name }}</a></small>
+                                </p>
+                            </div>
+                        </div>
+                        <br>
+                    {% endfor %}
+                {% endif %}
+                <br>
+                <form action="{{ url_for('main.add_comment') }}" method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.comment_text.label }}
+                        {{ form.comment_text() }}
+                    </div>
+                    {{ form.submit() }}
+                </form>
             </div>
         </div>
     </div>

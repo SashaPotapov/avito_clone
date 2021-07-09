@@ -1,11 +1,7 @@
 from flask_wtf import FlaskForm
-from flask_login import current_user
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, DecimalField, TextAreaField
 from wtforms.validators import DataRequired, Length, Regexp, Optional, Email, EqualTo
-from wtforms import ValidationError
-from ..models import User
-
 
 
 class ChangePassForm(FlaskForm):
