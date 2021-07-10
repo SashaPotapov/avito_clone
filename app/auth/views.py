@@ -6,6 +6,8 @@ from ..models import User, Role
 from ..email import send_email
 from . import auth
 from .forms import LoginForm, RegForm
+from app.utils import get_redirect_target
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -19,10 +21,10 @@ def login():
             login_user(user, remember=form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
-                next = url_for('main.index') 
-            return redirect(next)
-        
-        flash('Неправильный логин или пароль', 'warning')
+                next = url_for('main.index')
+            return redirect(next)  
+
+        flash('Неправильный логин или пароль', 'warning')  
     return render_template('auth/login.html', form=form, title='Авторизация') 
 
 @auth.route('/logout') 

@@ -50,7 +50,8 @@
                     {% endfor %}
                 {% endif %}
                 <br>
-                <form action="{{ url_for('main.add_comment') }}" method="POST">
+                {% if current_user.is_authenticated %}
+                    <form action="{{ url_for('main.add_comment') }}" method="POST">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         {{ form.comment_text.label }}
@@ -58,6 +59,11 @@
                     </div>
                     {{ form.submit() }}
                 </form>
+                {% else %}
+                    <p><a href="{{ url_for('auth.login', next=request.full_path)) }}">Авторизуйтесь</a>,
+                        чтобы оставить комментарий</p>
+                {% endif %}
+                
             </div>
         </div>
     </div>

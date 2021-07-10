@@ -1,9 +1,11 @@
 from flask import request, render_template, url_for, abort, flash, redirect
-from flask_login import current_user
+from flask_login import current_user, login_required
 from . import main
 from .. import db
 from ..models import Product, User, Comment
 from .forms import CommentForm
+from app.utils import get_redirect_target
+
 
 @main.route('/')
 @main.route('/index')
@@ -28,20 +30,20 @@ def product_page(product_id):
     return render_template('main/product.html', product=product, user=user, form=comment_form)
 
 @main.route('/product/comment', methods=['POST'])
+@login_required
 def add_comment():
     form = CommentForm()
     if form.validate_on_submit():
-        if Product.query.filter(Product.id == form.product_id.data).first():
-            comment = Comment(
-                            text=form.comment_text.data,
-                            product_id=form.product_id.data,
-                            user_id=current_user.id)
-            db.session.add(comment)
-            db.session.commit()
-            flash('Комментарий успешно добавлен', 'success')
+        comment = Comment(
+                        text=form.comment_text.data,
+                        product_id=form.product_id.data,
+                        user_id=current_user.id)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Комментарий успешно добавлен', 'success')
     else:
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f'Ошибка в заполнении поля "{getattr(form, field).label.text}": - {error}', 'warning')
-    return redirect(request.referrer)
+    return redirect(get_redirect_target())
             
