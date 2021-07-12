@@ -24,7 +24,9 @@ def create_app(config_name):
     login_manager.init_app(app)
     mail.init_app(app)
     
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']])
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
+    
     
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
