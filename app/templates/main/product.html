@@ -60,7 +60,7 @@
                     {{ form.submit() }}
                 </form>
                 {% else %}
-                    <p><a href="{{ url_for('auth.login', next=request.full_path)) }}">Авторизуйтесь</a>,
+                    <p><a href="{{ url_for('auth.login', next=request.full_path) }}">Авторизуйтесь</a>,
                         чтобы оставить комментарий</p>
                 {% endif %}
                 
