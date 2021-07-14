@@ -140,7 +140,7 @@ class User(db.Model, UserMixin):
 
 class Product(SearchableMixin, db.Model):
     __tablename__ = 'products'
-    __searchable__ = ['title', 'description']
+    __searchable__ = ['title', 'description', 'price']
     id = db.Column(db.Integer, primary_key=True)
     avito_id = db.Column(db.String(64), unique=True)
     title = db.Column(db.String(64), nullable=False)

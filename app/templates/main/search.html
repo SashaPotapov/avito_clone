@@ -8,8 +8,8 @@
             <form style='margin-bottom:50px;' class="navbar-form navbar-left" method="get"
                     action="{{ url_for('main.search') }}">
                 <div class="form-group">
-                    {{ form.q(size=20, class='form-control',
-                        placeholder=form.q.label.text) }}
+                    {{ search_form.q(size=20, class='form-control',
+                        placeholder=search_form.q.label.text) }}
                 </div>
             </form>
             {% for product in products %}
