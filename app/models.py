@@ -104,7 +104,7 @@ class Product(db.Model):
     title = db.Column(db.String(64), nullable=False)
     published = db.Column(db.DateTime, nullable=False)
     link_photo = db.Column(db.String(64), nullable=True)
-    price = db.Column(db.String(64), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text, nullable=True)
     address = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=False)
