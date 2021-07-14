@@ -10,7 +10,7 @@
         <hr>
         {% if products %}
             {% for product in products %}
-                <h4><a href="{{ url_for('main.product_page', product_id=product.id) }}">{{ product.title }}</a></h4>
+                <h5><a href="{{ url_for('main.product_page', product_id=product.id) }}">{{ product.title }}</a></h5 >
                 <img src="{{ product.get_photo_link() }}" width="150" height="150">
                 <p>{{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
                 {% if user == current_user %}

@@ -4,7 +4,6 @@ import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 from time import sleep
-from random import randrange
 
 from app import create_app
 from app.models import Role, db, Product, User
@@ -16,7 +15,6 @@ logging.basicConfig(filename='parser.log', filemode='w', level=logging.INFO)
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36",
 }
-
 
 def get_html(page=1):
     '''Функция get_html возвращает первую страницу, если не возникает сетевых ошибок'''
@@ -33,7 +31,6 @@ def get_html(page=1):
     except Exception as er:
         logging.error(f'Ошибка get_html {er}')
         return False
-
 
 def get_products_links():
     '''Функция get_products_links возвращает список ссылок на все товары категории'''
@@ -66,7 +63,6 @@ def get_products_links():
         return links
     return False
 
-
 def get_product_html():
     '''Функция get_product_html возвращает список html-страниц по каждому товару категории'''
     links = get_products_links()
@@ -93,7 +89,6 @@ def get_product_html():
         return html_of_products
     return False
 
-
 def get_product_info():
     '''Функция get_product_info выводит информацию по каждому товару'''
     html_of_products = get_product_html()
@@ -105,6 +100,7 @@ def get_product_info():
             avito_user_id_url = soup.find('div', class_="seller-info-name js-seller-info-name").find('a')['href']
             logging.info(avito_user_id_url)
             avito_user_id = avito_user_id_regex.search(avito_user_id_url).group(4)
+            avito_user_name = soup.find('div', class_="seller-info-name js-seller-info-name").find('a').text.strip()
 
             email = f'{avito_user_id}@avito.ru'
 
@@ -135,7 +131,7 @@ def get_product_info():
             
             logging.info(f'{html_num+1} данные объявления получены')
 
-            save_user_info(email, avito_user_id, address) 
+            save_user_info(email, avito_user_name, address) 
             save_product_info(title, avito_id, published, link_photo, address, price, description, category, email)
 
         logging.info(f'Все данные получены')
