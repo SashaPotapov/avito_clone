@@ -2,16 +2,15 @@
 
 {% block page_content %}
     <div class="row">
-        <div class='col-3'>
+        <div class='col-md-3'>
         </div>
-        <div class='col-6'>
-            
+        <div class='col-md-6'>
             {% for product in products %}
             {% if not product.hidden %}
                 <div class="item_card border border shadow-sm p-3 mb-5 bg-white rounded">
-                    <h4><a href="product/{{ product.id }}">{{ product.title }}</a></h4>
+                    <h5><a href="product/{{ product.id }}">{{ product.title }}</a></h5>
                     <img src="{{ product.get_photo_link() }}" width="200" height="200">
-                    <p>Описание: {{ product.description[:100] }}...</p>
+                    <p>Описание: {{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
                     <p>Адрес: {{ product.address }}</p>
                     <p><em>Цена: {{ product.price }} руб.</em></p>
                     <p>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</p>
@@ -19,13 +18,13 @@
             {% endif %}  
             {% endfor %}  
         </div>
-        <div class="col-3">
+        <div class="col-md-3">
         </div>
     </div>
     <div class="row">
-        <div class="col-3">
+        <div class="col-md-3">
         </div>
-        <div class="col-6">
+        <div class="col-md-6">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li class="page-item {% if not pagination.has_prev %} disabled {% endif %}"  >
@@ -44,7 +43,7 @@
                 </ul>
             </nav>
         </div>
-        <div class="col-3">
+        <div class="col-md-3">
         </div>
     </div>
 {% endblock page_content %}
