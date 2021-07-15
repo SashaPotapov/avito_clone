@@ -5,18 +5,10 @@ from wtforms.validators import DataRequired
 
 
 class SearchForm(FlaskForm):
-    q = StringField('Поиск', validators=[DataRequired()])
-
-    def __init__(self, *args, **kwargs):
-        if 'formdata' not in kwargs:
-            kwargs['formdata'] = request.args
-        if 'csrf_enabled' not in kwargs:
-            kwargs['csrf_enabled'] = False
-        super(SearchForm, self).__init__(*args, **kwargs)
-        
-class PriceRangeSearchForm(FlaskForm):
-    from_p = StringField('От', validators=[DataRequired()])
-    to_p = StringField('До', validators=[DataRequired()])
+    q = StringField('Поиск')
+    from_price = StringField('От')
+    to_price = StringField('До, руб.')
+  
     submit = SubmitField('Подтвердить')
     
     def __init__(self, *args, **kwargs):
@@ -24,5 +16,5 @@ class PriceRangeSearchForm(FlaskForm):
             kwargs['formdata'] = request.args
         if 'csrf_enabled' not in kwargs:
             kwargs['csrf_enabled'] = False
-        super(PriceRangeSearchForm, self).__init__(*args, **kwargs)
-    
+        super(SearchForm, self).__init__(*args, **kwargs)
+        

@@ -11,8 +11,13 @@ from .search import add_to_index, remove_from_index, query_index
 
 class SearchableMixin(object):
     @classmethod
-    def search(cls, expression, page, per_page):
-        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+    def search(cls, page, per_page, expression, from_price, to_price,
+                order_price, order_date):
+        if from_price == '':
+            from_price='0'
+        if to_price == '':
+            to_price='9999999999999999'
+        ids, total = query_index(cls.__tablename__, page, per_page, expression, from_price, to_price, order_price, order_date)
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []
@@ -140,7 +145,7 @@ class User(db.Model, UserMixin):
 
 class Product(SearchableMixin, db.Model):
     __tablename__ = 'products'
-    __searchable__ = ['title', 'description', 'price']
+    __searchable__ = ['title', 'description', 'price', 'published']
     id = db.Column(db.Integer, primary_key=True)
     avito_id = db.Column(db.String(64), unique=True)
     title = db.Column(db.String(64), nullable=False)
