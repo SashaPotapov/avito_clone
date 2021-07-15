@@ -23,7 +23,7 @@
                 <ul class="navbar-nav"> 
                     {% if not current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
+                        <a class="nav-link" href="{{ url_for('auth.login', next=request.path) }}">Войти</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.registration') }}">Зарегистрироваться</a>
@@ -38,11 +38,11 @@
                             <li><a class="dropdown-item" href="{{ url_for('profile.user_profile', user_id=current_user.id) }}">Мой профиль</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('post.user_products', user_id=current_user.id) }}">Мои объявления</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('profile.edit_profile', user_id=current_user.id) }}">Настройки</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout', next=request.path) }}">Выйти</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-primary text-light" href="{{ url_for('post.create_product', user_id=current_user.id) }}" role="button" >Разместить объявление</a>
+                        <a class="nav-link btn btn-primary text-light" href="{{ url_for('post.create_product', user_id=current_user.id, next=request.path) }}" role="button" >Разместить объявление</a>
                     </li>
                     {% endif %}
                 </ul>
