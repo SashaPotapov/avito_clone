@@ -19,7 +19,6 @@ def login():
                 flash(Markup(f'Ваш аккаунт не подтвержден. <a href="{url_for("auth.unconfirmed")}" \
                                class="alert-link">Отправить подтверждение еще раз.</a>'), 'warning')
             login_user(user, remember=form.remember_me.data)
-            flash('Вы успешно вошли в систему', 'success')
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
                 next = url_for('main.index') 
