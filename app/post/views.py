@@ -74,8 +74,11 @@ def edit_product(user_id, product_id):
 
         db.session.add(prod)
         db.session.commit()
+        next = request.args.get('next')
+        if next is None:
+            next = url_for('post.user_products', user_id=user.id)
         flash('Объявление успешно обновлено', 'success')
-        return redirect(url_for('post.user_products', user_id=user.id))
+        return redirect(next)
     form.title.data = prod.title
     form.price.data = int(prod.price)
     form.description.data = prod.description

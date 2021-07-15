@@ -22,7 +22,8 @@ def login():
             flash('Вы успешно вошли в систему', 'success')
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
-                next = url_for('main.index')
+                next = url_for('main.index') 
+            flash('Вы успешно вошли в систему', 'success')
             return redirect(next)
 
         flash('Неправильный логин или пароль', 'warning')     
@@ -32,8 +33,11 @@ def login():
 @login_required
 def logout():
     logout_user()
+    next = request.args.get('next')
+    if next is None or not next.startswith('/'):
+        next = url_for('main.index')  
     flash('Вы успешно вышли из системы', 'info')
-    return redirect(url_for('main.index'))
+    return redirect(next)
 
 @auth.route('/registration', methods=['GET', 'POST'])
 def registration():
