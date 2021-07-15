@@ -16,12 +16,32 @@ def remove_from_index(index, model):
     current_app.elasticsearch.delete(index=index, id=model.id)
 
 
-def query_index(index, query, page, per_page, field_range='price', from_r='0', to_r='999999999'):
+def query_index(index, page, per_page, query, from_price, to_price,
+                order_price, order_date):
     if not current_app.elasticsearch:
         return [], 0
+    if query:
+        if order_date:
+            body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},
+             'from':(page - 1) * per_page,'size':per_page,'sort':{'published':{'order':order_date}}}
+        elif order_price:
+            body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},
+             'from':(page - 1) * per_page,'size':per_page,'sort':{'price':{'order':order_price}}}
+        else:
+            body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte': from_price, 'lte': to_price}}}}},
+              'from':(page - 1) * per_page,'size':per_page}
+    else:
+        if order_date:
+            body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page,
+             'sort':[{'published':{'order':order_date}}]}
+        elif order_price:
+            body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page,
+             'sort':[{'price':{'order':order_price}}]}
+        else:
+            body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page}
+            
     search = current_app.elasticsearch.search(
         index=index,
-        body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{field_range:{'gte': from_r, 'lte': to_r}}}}},
-              'from':(page - 1) * per_page,'size':per_page})
+        body=body)
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']['value']
