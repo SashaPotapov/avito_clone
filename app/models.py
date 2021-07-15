@@ -12,12 +12,12 @@ from .search import add_to_index, remove_from_index, query_index
 class SearchableMixin(object):
     @classmethod
     def search(cls, page, per_page, expression, from_price, to_price,
-                order_price, order_date):
+                order):
         if from_price == '':
             from_price='0'
         if to_price == '':
             to_price='9999999999999999'
-        ids, total = query_index(cls.__tablename__, page, per_page, expression, from_price, to_price, order_price, order_date)
+        ids, total = query_index(cls.__tablename__, page, per_page, expression, from_price, to_price, order)
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []

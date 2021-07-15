@@ -16,27 +16,20 @@ def remove_from_index(index, model):
     current_app.elasticsearch.delete(index=index, id=model.id)
 
 
-def query_index(index, page, per_page, query, from_price, to_price,
-                order_price, order_date):
+def query_index(index, page, per_page, query, from_price, to_price, order):
     if not current_app.elasticsearch:
         return [], 0
     if query:
-        if order_date:
+        if order:
             body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},
-             'from':(page - 1) * per_page,'size':per_page,'sort':{'published':{'order':order_date}}}
-        elif order_price:
-            body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},
-             'from':(page - 1) * per_page,'size':per_page,'sort':{'price':{'order':order_price}}}
+             'from':(page - 1) * per_page,'size':per_page,'sort':{order[0]:{'order':order[1]}}}
         else:
             body={'query':{'bool':{'must':{'multi_match':{'query':query,'fields':['*']}},'filter':{'range':{'price':{'gte': from_price, 'lte': to_price}}}}},
               'from':(page - 1) * per_page,'size':per_page}
     else:
-        if order_date:
+        if order:
             body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page,
-             'sort':[{'published':{'order':order_date}}]}
-        elif order_price:
-            body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page,
-             'sort':[{'price':{'order':order_price}}]}
+             'sort':{order[0]:{'order':order[1]}}}
         else:
             body={'query':{'bool':{'filter':{'range':{'price':{'gte':from_price,'lte':to_price}}}}},'from':(page - 1) * per_page,'size':per_page}
             

@@ -31,14 +31,18 @@ def search():
     if not search_form.validate():
         return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
+    if search_form.order.data:
+        order = (search_form.order.data.split('_')[0], search_form.order.data.split('_')[1])
+    else:
+        order=search_form.order.data
     products, total = Product.search(page, 20, search_form.q.data, search_form.from_price.data, search_form.to_price.data,
-                                     '', '')
+                                     order)
     next_url = url_for('main.search', q=search_form.q.data, 
-                       from_price=search_form.from_price.data, to_price=search_form.to_price.data, 
+                       from_price=search_form.from_price.data, to_price=search_form.to_price.data, order=search_form.order.data,
                        page=page+1) \
         if total > page * 20 else None
     prev_url = url_for('main.search', q=search_form.q.data, 
-                       from_price=search_form.from_price.data, to_price=search_form.to_price.data, 
+                       from_price=search_form.from_price.data, to_price=search_form.to_price.data, order=search_form.order.data,
                        page=page-1) \
         if page > 1 else None
     pages = total // 20

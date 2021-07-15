@@ -13,10 +13,11 @@
 
                     {{ search_form.from_price(placeholder=search_form.from_price.label.text) }}
                     {{ search_form.to_price(placeholder=search_form.to_price.label.text) }}
+                    {{ search_form.order(placeholder=search_form.to_price.label.text) }}
                     {{ search_form.submit() }}
                 </div>
-                
             </form>
+
             {% for product in products %}
             {% if not product.hidden %}
                 <div class="item_card border border shadow-sm p-3 mb-5 bg-white rounded">
