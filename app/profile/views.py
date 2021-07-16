@@ -14,8 +14,6 @@ from ..models import User
 @login_required
 def user_profile(user_id):   
     user = User.query.filter(User.id == user_id).first_or_404()
-    if current_user != user:
-        abort(404)
     return render_template('profile/user.html', user=user)
 
 def save_photo(form_photo):

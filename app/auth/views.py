@@ -7,12 +7,14 @@ from ..email import send_email
 from . import auth
 from .forms import LoginForm, RegForm
 
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if form.validate_on_submit():
-        user = User.query.filter_by(email = form.email.data).first()
-        if user is not None and user.verify_password(form.password.data):
+        user = User.query.filter(User.email == form.email.data).first()
+        if user and user.verify_password(form.password.data):
             if not user.confirmed:
                 flash(Markup(f'Ваш аккаунт не подтвержден. <a href="{url_for("auth.unconfirmed")}" \
                                class="alert-link">Отправить подтверждение еще раз.</a>'), 'warning')
@@ -22,8 +24,8 @@ def login():
                 next = url_for('main.index') 
             flash('Вы успешно вошли в систему', 'success')
             return redirect(next)
-        
-        flash('Неправильный логин или пароль', 'warning')
+
+        flash('Неправильный логин или пароль', 'warning')     
     return render_template('auth/login.html', form=form, title='Авторизация') 
 
 @auth.route('/logout') 

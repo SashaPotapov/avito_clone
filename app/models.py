@@ -1,7 +1,8 @@
 import re
+from datetime import datetime
 from flask import url_for
 from flask_login import UserMixin
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
@@ -65,6 +66,7 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'<Role {self.name} {self.id}>'
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -143,6 +145,7 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.name} {self.id}>'
 
+
 class Product(SearchableMixin, db.Model):
     __tablename__ = 'products'
     __searchable__ = ['title', 'description', 'price', 'published']
@@ -151,7 +154,7 @@ class Product(SearchableMixin, db.Model):
     title = db.Column(db.String(64), nullable=False)
     published = db.Column(db.DateTime, nullable=False)
     link_photo = db.Column(db.String(64), nullable=True)
-    price = db.Column(db.String(64), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text, nullable=True)
     address = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=False)
@@ -166,6 +169,9 @@ class Product(SearchableMixin, db.Model):
             return url_for('static', filename='product_image/' + self.link_photo)
         return url_for('static', filename='product_image/' + 'default-product-image.jpg')
 
+    def comments_count(self):
+        return Comment.query.filter(Comment.product_id == self.id).count()
+
     def __repr__(self):
         return f'<Product {self.title} {self.id}>'
 
@@ -173,3 +179,25 @@ class Product(SearchableMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    product_id = db.Column(
+        db.Integer,
+        db.ForeignKey('products.id', ondelete='CASCADE'),
+        index=True
+    )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        index=True
+    )
+    product = relationship('Product', backref='comments')
+    user = relationship('User', backref='comments')
+
+    def __repr__(self):
+        return f'<Comment {self.id}>'
