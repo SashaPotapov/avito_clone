@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_login import LoginManager
 from flask_mail import Mail
+from elasticsearch import Elasticsearch
 from config import config
 
 bootstrap = Bootstrap()
@@ -22,7 +23,11 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
-
+    
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
+    
+    
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
