@@ -25,7 +25,7 @@ def login():
             flash('Вы успешно вошли в систему', 'success')
             return redirect(next)
 
-        flash('Неправильный логин или пароль', 'warning')     
+        flash('Неправильный e-mail или пароль', 'warning')     
     return render_template('auth/login.html', form=form, title='Авторизация') 
 
 @auth.route('/logout') 
@@ -59,7 +59,7 @@ def confirm(token):
     user = User.check_user(token)
     if user:
         if user.confirmed:
-            flash('Ваш email уже подтвержден', 'info')
+            flash('Ваш e-mail уже подтвержден', 'info')
             if current_user.is_authenticated:
                 return redirect(url_for('profile.user_profile', user_id=user.id))
             return redirect(url_for('main.index'))
@@ -72,14 +72,14 @@ def confirm(token):
             return redirect(url_for('auth.login'))
     elif current_user.is_authenticated:
         return redirect(url_for('auth.unconfirmed'))
-    flash('Ссылка на подтверждение истекла. Пожалуйста залогиньтесь и отправьте подтверждение еще раз', 'warning')
+    flash('Ссылка на подтверждение истекла. Пожалуйста, залогиньтесь и отправьте подтверждение еще раз', 'warning')
     return redirect(url_for('main.index'))
     
 @auth.route('/unconfirmed')
 @login_required
 def unconfirmed():
     if current_user.confirmed:
-        flash('Ваш email уже подтвержден', 'info')
+        flash('Ваш e-mail уже подтвержден', 'info')
         return redirect(url_for('main.index'))
     return render_template('auth/unconfirmed.html')
 
@@ -87,9 +87,9 @@ def unconfirmed():
 @login_required
 def resend_email_confirmation():
     if current_user.confirmed:
-        flash('Ваш email уже подтвержден', 'info')
+        flash('Ваш e-mail уже подтвержден', 'info')
         return redirect(url_for('main.index')) 
-    flash(f'Ссылка подтверждения отправлена на {current_user.email}', 'success')       
+    flash(f'Ссылка на подтверждение аккаунта отправлена на {current_user.email}', 'success')       
     token = current_user.generate_confirmation_token()
     send_email(current_user.email, 'Подтверждение аккаунта', 'auth/email/confirm',\
                user=current_user, token=token)
