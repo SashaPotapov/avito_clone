@@ -5,8 +5,8 @@ from wtforms.validators import DataRequired, Length, Optional
 
 
 class AddProdForm(FlaskForm):
-    title = StringField('Название товара', validators=[DataRequired(), Length(1, 64)], render_kw={'class': 'form-control'})
-    price = IntegerField('Цена', validators=[DataRequired()], render_kw={'class': 'form-control'})
+    title = StringField('Название товара', validators=[DataRequired('Необходимо заполнить поле'), Length(1, 64)], render_kw={'class': 'form-control'})
+    price = IntegerField('Цена', validators=[DataRequired('Необходимо заполнить поле')], render_kw={'class': 'form-control'})
     description = TextAreaField('Описание (опционально)', validators=[Optional()], render_kw={'class': 'form-control'})
     address = StringField('Адрес (опционально)', validators=[Optional(), Length(1, 64)], render_kw={'class': 'form-control'})
     link_photo = FileField('Загрузите изображение товара', validators=[FileAllowed(['jpg', 'png'])], render_kw={'class': 'form-control-file'})
@@ -15,8 +15,8 @@ class AddProdForm(FlaskForm):
 
 
 class EditProdForm(FlaskForm):
-    title = StringField('Название товара', validators=[DataRequired(), Length(1, 64)], render_kw={'class': 'form-control'})
-    price = IntegerField('Цена', validators=[DataRequired()], render_kw={'class': 'form-control'})
+    title = StringField('Название товара', validators=[DataRequired('Необходимо заполнить поле'), Length(1, 64)], render_kw={'class': 'form-control'})
+    price = IntegerField('Цена', validators=[DataRequired('Необходимо заполнить поле')], render_kw={'class': 'form-control'})
     description = TextAreaField('Описание (опционально)', validators=[Optional()], render_kw={'class': 'form-control'})
     address = StringField('Адрес (опционально)', validators=[Optional(), Length(1, 64)], render_kw={'class': 'form-control'})
     link_photo = FileField('Загрузите новое изображение товара', validators=[FileAllowed(['jpg', 'png'])], render_kw={'class': 'form-control-file'})
