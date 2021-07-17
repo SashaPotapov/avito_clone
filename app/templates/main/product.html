@@ -8,9 +8,9 @@
                 <h6>Опубликовано: {{ product.published.strftime('%d.%m.%Y %H:%M') }}</h6>
                 <img src="{{ product.get_photo_link() }}" height="280" weight="280">
                 <hr>
-                <p><em>Адрес: {{ product.address }}</em></p>
+                <p id="descp"><em>Адрес: {{ product.address }}</em></p>
                 <hr>
-                <p id="descp">Описание: {{ product.description }}</p>
+                <p>Описание: {{ product.description }}</p>
             </div>
             <div class="col-sm-3">
                 <h4>{{ product.price }} ₽</h4>
