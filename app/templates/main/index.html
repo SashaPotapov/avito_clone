@@ -4,7 +4,7 @@
     <div class="row">
         <div class='col-md-3'>
         </div>
-        <div class='col-6'>
+        <div class='col-sm-6'>
         <!-- <div class='col-md-6'> -->
             <form style='margin-bottom:50px;' class="navbar-form navbar-left" method="get"
                     action="{{ url_for('main.search') }}">
@@ -32,13 +32,13 @@
             {% endif %}  
             {% endfor %}  
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-3">
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-sm-3">
         </div>
-        <div class="col-md-6">
+        <div class="col-sm-6">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li class="page-item {% if not pagination.has_prev %} disabled {% endif %}"  >
@@ -57,7 +57,7 @@
                 </ul>
             </nav>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-3">
         </div>
     </div>
 {% endblock page_content %}
