@@ -18,18 +18,21 @@ def login():
         user = User.query.filter(User.email == form.email.data).first()
         if user and user.verify_password(form.password.data):
             if not user.confirmed:
-                flash_message = f"""
-                Ваш аккаунт не подтвержден.
-                <a href="{url_for("auth.unconfirmed")}class="alert-link">
-                 Отправить подтверждение еще раз.</a>
-                """
-            flash(Markup(flash_message), 'warning')
+                flash_message = (
+                    'Ваш аккаунт не подтвержден.'
+                    + f'<a href="{url_for("auth.unconfirmed")}'
+                    + 'class="alert-link">'
+                    + 'Отправить подтверждение еще раз.</a>'
+                )
+
+                flash(Markup(flash_message), 'warning')
             login_user(user, remember=form.remember_me.data)
-            next = request.args.get('next')
-            if next is None or not next.startswith('/'):
-                next = url_for('main.index')
+            next_url = request.args.get('next')
+
+            if next_url is None or not next_url.startswith('/'):
+                next_url = url_for('main.index')
             flash('Вы успешно вошли в систему', 'success')
-            return redirect(next)
+            return redirect(next_url)
 
         flash('Неправильный e-mail или пароль', 'warning')
     return render_template('auth/login.html', form=form, title='Авторизация')
@@ -39,11 +42,11 @@ def login():
 @login_required
 def logout():
     logout_user()
-    next = request.args.get('next')
-    if next is None or not next.startswith('/'):
-        next = url_for('main.index')
+    next_url = request.args.get('next')
+    if next_url is None or not next_url.startswith('/'):
+        next_url = url_for('main.index')
     flash('Вы успешно вышли из системы', 'info')
-    return redirect(next)
+    return redirect(next_url)
 
 
 @auth.route('/registration', methods=['GET', 'POST'])
@@ -66,10 +69,11 @@ def registration():
             user=user,
             token=token,
         )
-        flash_message = f"""
-        Ваш аккаунт успешно создан.
-        Пожалуйста, подтвердите его по ссылке, отправленной на {user.email}
-        """
+        flash_message = (
+            'Ваш аккаунт успешно создан.'
+            + 'Пожалуйста, подтвердите его по ссылке, '
+            + f'отправленной на {user.email}'
+        )
         flash(flash_message, 'success')
         return redirect(url_for('main.index'))
 
@@ -112,9 +116,10 @@ def confirm(token):
     elif current_user.is_authenticated:
         return redirect(url_for('auth.unconfirmed'))
 
-    flash_message = """Ссылка на подтверждение истекла.
-     Пожалуйста, залогиньтесь и отправьте подтверждение еще раз
-    """
+    flash_message = (
+        'Ссылка на подтверждение истекла.'
+        + 'Пожалуйста, залогиньтесь и отправьте подтверждение еще раз'
+    )
     flash(flash_message, 'warning')
     return redirect(url_for('main.index'))
 
@@ -136,9 +141,10 @@ def resend_email_confirmation():
         flash('Ваш e-mail уже подтвержден', 'info')
         return redirect(url_for('main.index'))
 
-    flash_message = f"""Ссылка на подтверждение аккаунта
-     отправлена на {current_user.email}
-    """
+    flash_message = (
+        'Ссылка на подтверждение аккаунта'
+        + f'отправлена на {current_user.email}'
+    )
     flash(flash_message, 'success')
     token = current_user.generate_confirmation_token()
     send_email(

@@ -10,8 +10,8 @@ from app.models import User
 
 from . import profile
 from .forms import (
-    ChangeEmailForm, ChangeNameForm, ChangePassForm,
-    ChangePhotoForm,
+    ChangeEmailForm, ChangeNameForm,
+    ChangePassForm, ChangePhotoForm,
 )
 
 
@@ -116,10 +116,10 @@ def change_email(user_id):
             user=user,
             token=token,
         )
-        flash_message = f"""
-        Пожалуйста, подтвердите новый email перейдя по ссылке,
-        отправленной на {email}
-        """
+        flash_message = (
+            'Пожалуйста, подтвердите новый email перейдя по ссылке, '
+            + f'отправленной на {email}'
+        )
         flash(flash_message, 'info')
     return render_template(
         'profile/change_email.html',
@@ -139,10 +139,10 @@ def change_email_confirmation(user_id, token):
         flash_message = 'Ваш email успешно обновлен'
         flash(flash_message, 'success')
     else:
-        lash_message = """
-        Ссылка на подтверждение истекла.
-         Пожалуйста, отправьте подтверждение еще раз
-        """
+        lash_message = (
+            'Ссылка на подтверждение истекла. '
+            + 'Пожалуйста, отправьте подтверждение еще раз'
+        )
         flash(lash_message, 'warning')
     return redirect(url_for('profile.edit_profile', user_id=user.id))
 

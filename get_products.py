@@ -102,6 +102,7 @@ def get_end_page(soup):
         )
     except AttributeError:
         end_page = 1
+        number_pages = end_page
 
     if number_pages > 5:
         end_page = 5
