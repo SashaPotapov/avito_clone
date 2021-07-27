@@ -78,8 +78,8 @@ def search():
 
     page = request.args.get('page', 1, type=int)
     order = (
-        search_form.order.data[0],
-        search_form.order.data[1],
+        search_form.order.data.split('_')[0],
+        search_form.order.data.split('_')[1],
     )
 
     products, total = Product.search(

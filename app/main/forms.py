@@ -27,10 +27,10 @@ class SearchForm(FlaskForm):
     order = SelectField(
         'Сортировка',
         choices=[
-            (('published', 'desc'), 'Дата по убыванию'),
-            (('published', 'asc'), 'Дата по возрастанию'),
-            (('price', 'asc'), 'Цена по возрастанию'),
-            (('price', 'desc'), 'Цена по убыванию'),
+            ('published_desc', 'Дата по убыванию'),
+            ('published_asc', 'Дата по возрастанию'),
+            ('price_asc', 'Цена по возрастанию'),
+            ('price_desc', 'Цена по убыванию'),
         ])
     submit = SubmitField('Подтвердить')
 
