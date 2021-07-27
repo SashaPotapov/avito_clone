@@ -18,16 +18,14 @@ def index():
         Product.published.desc(),
     ).paginate(page, error_out=False)
     products = pagination.items
-    next_url = url_for('main.index', page=pagination.next_num)
-    prev_url = url_for('main.index', page=pagination.prev_num)
     return render_template(
         'main/index.html',
         title='Авитоклон',
         products=products,
         search_form=search_form,
         pagination=pagination,
-        next_url=next_url,
-        prev_url=prev_url,
+        next_url=url_for('main.index', page=pagination.next_num),
+        prev_url=url_for('main.index', page=pagination.prev_num),
     )
 
 
@@ -77,14 +75,12 @@ def search():
     search_form = SearchForm()
     if not search_form.validate():
         return redirect(url_for('main.index'))
+
     page = request.args.get('page', 1, type=int)
-    if search_form.order.data:
-        order = (
-            search_form.order.data.split('_')[0],
-            search_form.order.data.split('_')[1],
-        )
-    else:
-        order = search_form.order.data
+    order = (
+        search_form.order.data[0],
+        search_form.order.data[1],
+    )
 
     products, total = Product.search(
         page,
@@ -92,7 +88,7 @@ def search():
         search_form.q.data,
         search_form.from_price.data,
         search_form.to_price.data,
-        order
+        order,
     )
     next_url = url_for(
         'main.search',

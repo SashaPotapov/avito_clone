@@ -27,11 +27,10 @@ class SearchForm(FlaskForm):
     order = SelectField(
         'Сортировка',
         choices=[
-            ('', 'По умолчанию'),
-            ('published_asc', 'Дата по возрастанию'),
-            ('published_desc', 'Дата по убыванию'),
-            ('price_asc', 'Цена по возрастанию'),
-            ('price_desc', 'Цена по убыванию'),
+            (('published', 'desc'), 'Дата по убыванию'),
+            (('published', 'asc'), 'Дата по возрастанию'),
+            (('price', 'asc'), 'Цена по возрастанию'),
+            (('price', 'desc'), 'Цена по убыванию'),
         ])
     submit = SubmitField('Подтвердить')
 
@@ -40,4 +39,4 @@ class SearchForm(FlaskForm):
             kwargs['formdata'] = request.args
         if 'csrf_enabled' not in kwargs:
             kwargs['csrf_enabled'] = False
-        super(SearchForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
