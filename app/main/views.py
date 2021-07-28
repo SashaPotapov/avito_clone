@@ -86,15 +86,15 @@ def search():
         page,
         20,  # Items on the page
         search_form.q.data,
-        search_form.from_price.data,
-        search_form.to_price.data,
+        search_form.from_num.data,
+        search_form.to_num.data,
         order,
     )
     next_url = url_for(
         'main.search',
         q=search_form.q.data,
-        from_price=search_form.from_price.data,
-        to_price=search_form.to_price.data,
+        from_price=search_form.from_num.data,
+        to_price=search_form.to_num.data,
         order=search_form.order.data,
         page=page + 1,
     ) if total > page * 20 else None
@@ -102,8 +102,8 @@ def search():
     prev_url = url_for(
         'main.search',
         q=search_form.q.data,
-        from_price=search_form.from_price.data,
-        to_price=search_form.to_price.data,
+        from_price=search_form.from_num.data,
+        to_price=search_form.to_num.data,
         order=search_form.order.data,
         page=page - 1,
     ) if page > 1 else None
