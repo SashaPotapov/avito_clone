@@ -16,7 +16,16 @@ def remove_from_index(index, model):
     current_app.elasticsearch.delete(index=index, id=model.id)
 
 
-def query_index(index, page, per_page, query, from_price, to_price, order):
+def query_index(
+    index,
+    page,
+    per_page,
+    query,
+    filter_by,
+    from_num,
+    to_num,
+    order,
+):
     if not current_app.elasticsearch:
         return [], 0
 
@@ -25,9 +34,9 @@ def query_index(index, page, per_page, query, from_price, to_price, order):
             'bool': {
                 'filter': {
                     'range': {
-                        'price': {
-                            'gte': from_price,
-                            'lte': to_price,
+                        filter_by: {
+                            'gte': from_num,
+                            'lte': to_num,
                         }}},
             }},
         'from': (page - 1) * per_page,

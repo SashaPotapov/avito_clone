@@ -22,8 +22,8 @@ class CommentForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     q = StringField('Поиск')
-    from_price = StringField('От')
-    to_price = StringField('До, руб.')
+    from_num = StringField('От')
+    to_num = StringField('До, руб.')
     order = SelectField(
         'Сортировка',
         choices=[

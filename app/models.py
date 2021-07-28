@@ -1,31 +1,44 @@
 import re
 from datetime import datetime
-from flask import url_for
+
+from flask import current_app, url_for
 from flask_login import UserMixin
-from sqlalchemy.orm import backref, relationship
-from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
-from . import db, login_manager
-from .search import add_to_index, remove_from_index, query_index
+from sqlalchemy.orm import relationship
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import db, login_manager
+from app.search import add_to_index, query_index, remove_from_index
 
 
 class SearchableMixin(object):
     @classmethod
-    def search(cls, page, per_page, expression, from_price, to_price,
-                order):
-        if from_price == '':
-            from_price='0'
-        if to_price == '':
-            to_price='9999999999999999'
-        ids, total = query_index(cls.__tablename__, page, per_page, expression, from_price, to_price, order)
+    def search(cls, page, per_page, expression, from_num, to_num, order):
+        if not from_num:
+            from_num = '0'
+        if not to_num:
+            to_num = '999999'
+        ids, total = query_index(
+            cls.__tablename__,
+            page,
+            per_page,
+            expression,
+            cls.__filterable__,
+            from_num,
+            to_num,
+            order,
+        )
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []
         for i in range(len(ids)):
             when.append((ids[i], i))
-        return cls.query.filter(cls.id.in_(ids)).order_by(
-            db.case(when, value=cls.id)), total
+
+        return cls.query.filter(
+            cls.id.in_(ids),
+        ).order_by(
+            db.case(when, value=cls.id),
+        ), total
 
     @classmethod
     def before_commit(cls, session):
@@ -34,8 +47,8 @@ class SearchableMixin(object):
             'update': list(session.dirty),
             'delete': list(session.deleted)
         }
-    
-    @classmethod        
+
+    @classmethod
     def after_commit(cls, session):
         for obj in session._changes['add']:
             if isinstance(obj, SearchableMixin):
@@ -47,8 +60,8 @@ class SearchableMixin(object):
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
         session._changes = None
-      
-    @classmethod   
+
+    @classmethod
     def index_update(cls):
         for obj in cls.query:
             add_to_index(cls.__tablename__, obj)
@@ -98,10 +111,10 @@ class User(db.Model, UserMixin):
     def confirm(self, token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data = s.loads(token.encode('utf-8'))
+            serialised_data = s.loads(token.encode('utf-8'))
         except:
             return False
-        if data.get('confirm') != self.id:
+        if serialised_data.get('confirm') != self.id:
             return False
         self.confirmed = True
         db.session.add(self)
@@ -110,28 +123,35 @@ class User(db.Model, UserMixin):
     def generate_email_change_token(self, new_email, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps(
-            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')
+            {'change_email': self.id, 'new_email': new_email},
+        ).decode('utf-8')
 
     def confirm_email_change(self, token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data = s.loads(token.encode('utf-8'))
+            serialised_data = s.loads(token.encode('utf-8'))
         except:
             return False
-        if data.get('change_email') != self.id:
+        if serialised_data.get('change_email') != self.id:
             return False
-        new_email = data.get('new_email')
+        new_email = serialised_data.get('new_email')
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
         db.session.add(self)
         return True
-    
+
     def get_avatar_link(self):
         if self.avatar_link:
-            return url_for('static', filename='profile_image/' + self.avatar_link)
-        return url_for('static', filename='profile_image/' + 'default-avatar.jpg')
-    
+            return url_for(
+                'static',
+                filename=f'profile_image/{self.avatar_link}',
+            )
+        return url_for(
+            'static',
+            filename='profile_image/default-avatar.jpg',
+        )
+
     @staticmethod
     def check_user(token):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -149,6 +169,7 @@ class User(db.Model, UserMixin):
 class Product(SearchableMixin, db.Model):
     __tablename__ = 'products'
     __searchable__ = ['title', 'description', 'price', 'published']
+    __filterable__ = 'price'
     id = db.Column(db.Integer, primary_key=True)
     avito_id = db.Column(db.String(64), unique=True)
     title = db.Column(db.String(64), nullable=False)
@@ -160,14 +181,21 @@ class Product(SearchableMixin, db.Model):
     category = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     hidden = db.Column(db.Boolean, default=False)
-    
+
     def get_photo_link(self):
         if self.link_photo:
-            check_url = re.compile(r'https:')
+            check_url = re.compile('https:')
             if check_url.search(self.link_photo):
-                return self.link_photo 
-            return url_for('static', filename='product_image/' + self.link_photo)
-        return url_for('static', filename='product_image/' + 'default-product-image.jpg')
+                return self.link_photo
+
+            return url_for(
+                'static',
+                filename=f'product_image/{self.link_photo}',
+            )
+        return url_for(
+            'static',
+            filename='product_image/default-product-image.jpg',
+        )
 
     def comments_count(self):
         return Comment.query.filter(Comment.product_id == self.id).count()
@@ -189,12 +217,12 @@ class Comment(db.Model):
     product_id = db.Column(
         db.Integer,
         db.ForeignKey('products.id', ondelete='CASCADE'),
-        index=True
+        index=True,
     )
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
-        index=True
+        index=True,
     )
     product = relationship('Product', backref='comments')
     user = relationship('User', backref='comments')
