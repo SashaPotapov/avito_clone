@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from flask import current_app, url_for
+from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sqlalchemy.orm import relationship
@@ -182,14 +182,8 @@ class Product(SearchableMixin, db.Model):
             if check_url.search(self.link_photo):
                 return self.link_photo
 
-            return url_for(
-                'static',
-                filename=f'product_image/{self.link_photo}',
-            )
-        return url_for(
-            'static',
-            filename='product_image/default-product-image.jpg',
-        )
+            return f'/static/product_image/{self.link_photo}'
+        return '/static/product_image/default-product-image.jpg'
 
     def comments_count(self):
         return Comment.query.filter(Comment.product_id == self.id).count()
