@@ -143,14 +143,8 @@ class User(db.Model, UserMixin):
 
     def get_avatar_link(self):
         if self.avatar_link:
-            return url_for(
-                'static',
-                filename=f'profile_image/{self.avatar_link}',
-            )
-        return url_for(
-            'static',
-            filename='profile_image/default-avatar.jpg',
-        )
+            return f'/static/profile_image/{self.avatar_link}'
+        return '/static/profile_image/default-avatar.jpg'
 
     @staticmethod
     def check_user(token):
