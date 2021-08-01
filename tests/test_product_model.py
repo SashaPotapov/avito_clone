@@ -17,7 +17,7 @@ class UserModelTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def test_get_photo_link(self):
+    def test_get_photo_link_default(self):
         p = Product(
             title='cat',
             published=datetime.today(),
@@ -31,12 +31,26 @@ class UserModelTestCase(unittest.TestCase):
             link == '/static/product_image/default-product-image.jpg',
         )
 
+    def test_get_photo_link(self):
+        p = Product(
+            title='cat',
+            published=datetime.today(),
+            price='1000',
+            category='cats',
+        )
         p.link_photo = 'link.jpg'
         db.session.add(p)
         db.session.commit()
         link = p.get_photo_link()
         self.assertTrue(link == '/static/product_image/link.jpg')
 
+    def test_get_photo_outside_link(self):
+        p = Product(
+            title='cat',
+            published=datetime.today(),
+            price='1000',
+            category='cats',
+        )
         p.link_photo = 'https://link.jpg'
         db.session.add(p)
         db.session.commit()
