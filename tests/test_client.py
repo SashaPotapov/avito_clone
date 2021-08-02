@@ -1,8 +1,9 @@
 import unittest
+from datetime import datetime
 from time import sleep
 
 from app import create_app, db
-from app.models import Role, User
+from app.models import Product, Role, User
 
 
 class FlaskClientTestCase(unittest.TestCase):
@@ -70,7 +71,7 @@ class FlaskClientTestCase(unittest.TestCase):
             '/auth/unconfirmed',
         )
         self.assertEqual(response.status_code, 200)
-        
+
         response = self.client.get(
             '/auth/confirm',
             follow_redirects=True,
@@ -79,7 +80,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue('Ссылка на подтверждение' in response.get_data(
             as_text=True,
         ))
-        
+
         user = User.query.filter_by(email='email@mail.com').first()
         token = user.generate_confirmation_token()
         response = self.client.get(
@@ -116,3 +117,22 @@ class FlaskClientTestCase(unittest.TestCase):
             follow_redirects=True,
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_product_page(self):
+        p = Product(
+            title='cat',
+            published=datetime.today(),
+            price='1000',
+            category='cats',
+            user_id=1,
+        )
+        db.session.add(p)
+        db.session.commit()
+        response = self.client.get(f'/product/{p.id}')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/product/2')
+        self.assertEqual(response.status_code, 404)
+
+        
+        
