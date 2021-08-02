@@ -32,10 +32,11 @@ def index():
 @main.route('/product/<int:product_id>')
 def product_page(product_id):
     product = Product.query.filter(Product.id == product_id).first()
-    user = User.query.filter(User.id == product.user_id).first()
-
     if not product:
         abort(404)
+
+    user = User.query.filter(User.id == product.user_id).first()
+
     comment_form = CommentForm(product_id=product.id)
     return render_template(
         'main/product.html',
