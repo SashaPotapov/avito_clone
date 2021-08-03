@@ -1,7 +1,9 @@
+import re
 import unittest
+from unittest import mock
 from datetime import datetime
 from time import sleep
-
+from flask_login.utils import login_user, logout_user
 from app import create_app, db
 from app.models import Product, Role, User
 
@@ -48,6 +50,14 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
+    def test_login(self):
+        u = User(
+            password='supercat',
+            email='email@mail.com',
+        )
+        db.session.add(u)
+        db.session.commit()
+
         response = self.client.post(
             '/auth/login',
             data={
@@ -81,13 +91,20 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
-        user = User.query.filter_by(email='email@mail.com').first()
-        token = user.generate_confirmation_token()
+        token = u.generate_confirmation_token(expiration=1)
+        sleep(2)
         response = self.client.get(
             f'/auth/confirm/{token}',
             follow_redirects=True,
         )
-        user.confirm(token)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.request.path, '/auth/unconfirmed')
+
+        token = u.generate_confirmation_token()
+        response = self.client.get(
+            f'/auth/confirm/{token}',
+            follow_redirects=True,
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Аккаунт успешно подтвержден' in response.get_data(
             as_text=True,
@@ -118,6 +135,37 @@ class FlaskClientTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+        token = u.generate_confirmation_token()
+        u.confirmed = False
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get(
+            f'/auth/confirm/{token}',
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.request.path, '/auth/login')
+
+        token = u.generate_confirmation_token(expiration=1)
+        sleep(2)
+        response = self.client.get(
+            f'/auth/confirm/{token}',
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('истекла' in response.get_data(
+            as_text=True,
+        ))
+        self.assertEqual(response.request.path, '/index')
+
+        token = u.generate_confirmation_token()
+        response = self.client.get(
+            f'/auth/confirm/{token}',
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.request.path, '/index')    
+
     def test_product_page(self):
         p = Product(
             title='cat',
@@ -134,5 +182,27 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get('/product/2')
         self.assertEqual(response.status_code, 404)
 
-        
-        
+    @mock.patch('flask_login.utils._get_user')
+    def test_profile_page(self, mock_current_user):
+        u = User(password='cat', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        mock_current_user.return_value = u
+        response = self.client.get(f'/profile/{u.id}')
+        self.assertEqual(response.status_code, 200)
+
+        p = Product(
+            title='cat',
+            published=datetime.today(),
+            price='1000',
+            category='cats',
+            user_id=u.id,
+        )
+        db.session.add(p)
+        db.session.commit()
+
+        response = self.client.get(f'/profile/{u.id}/user_products')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f'/profile/{u.id}/create_product')
+        self.assertEqual(response.status_code, 200)
