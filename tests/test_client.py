@@ -1,7 +1,7 @@
 import unittest
-from unittest import mock
 from datetime import datetime
 from time import sleep
+from unittest import mock
 
 from app import create_app, db
 from app.models import Product, Role, User
@@ -337,3 +337,49 @@ class FlaskClientTestCase(unittest.TestCase):
         p = Product.query.filter(Product.title == 'newtitle').first()
         self.assertFalse(p)
 
+    @mock.patch('app.main.views.get_redirect_target')
+    @mock.patch('flask_login.utils._get_user')
+    def test_comments(self, mock_current_user, mock_redirect_target):
+        u = User(password='cat', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        p = Product(
+            title='title',
+            published=datetime.today(),
+            price='1000',
+            description='description',
+            category='cats',
+            user_id=u.id,
+        )
+        db.session.add(p)
+        db.session.commit()
+        mock_current_user.return_value = u
+        mock_redirect_target.return_value = '/'
+
+        response = self.client.post(
+            '/product/comment',
+            data={
+                'comment_text': 'comment',
+                'product_id': p.id,
+            }, follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f'/product/{p.id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('comment' in response.get_data(
+            as_text=True,
+        ))
+        
+        response = self.client.post(
+            '/product/comment',
+            data={
+                'comment_text': '',
+                'product_id': p.id,
+            }, follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('field is required' in response.get_data(
+            as_text=True,
+        ))
+        
