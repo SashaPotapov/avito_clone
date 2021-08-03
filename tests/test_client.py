@@ -1,9 +1,8 @@
-import re
 import unittest
 from unittest import mock
 from datetime import datetime
 from time import sleep
-from flask_login.utils import login_user, logout_user
+
 from app import create_app, db
 from app.models import Product, Role, User
 
@@ -38,7 +37,8 @@ class FlaskClientTestCase(unittest.TestCase):
             'pass_conf': 'supercat',
         })
         self.assertEqual(response.status_code, 302)
-
+        
+        # test registration with wrong name
         response = self.client.post('/auth/registration', data={
             'email': 'email@mail.com',
             'fname': 'wrongname',
@@ -58,6 +58,7 @@ class FlaskClientTestCase(unittest.TestCase):
         db.session.add(u)
         db.session.commit()
 
+        # test login with wrong name
         response = self.client.post(
             '/auth/login',
             data={
@@ -91,6 +92,7 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
+        # test expired token when authenticated
         token = u.generate_confirmation_token(expiration=1)
         sleep(2)
         response = self.client.get(
@@ -135,6 +137,7 @@ class FlaskClientTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+        # test confirmation when not authenticated
         token = u.generate_confirmation_token()
         u.confirmed = False
         db.session.add(u)
@@ -146,6 +149,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.request.path, '/auth/login')
 
+        # test expired token when not authenticated
         token = u.generate_confirmation_token(expiration=1)
         sleep(2)
         response = self.client.get(
@@ -158,6 +162,7 @@ class FlaskClientTestCase(unittest.TestCase):
         ))
         self.assertEqual(response.request.path, '/index')
 
+        # test successful confirmation when not authenticated
         token = u.generate_confirmation_token()
         response = self.client.get(
             f'/auth/confirm/{token}',
@@ -178,6 +183,9 @@ class FlaskClientTestCase(unittest.TestCase):
         db.session.commit()
         response = self.client.get(f'/product/{p.id}')
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(p.title in response.get_data(
+            as_text=True,
+        ))
 
         response = self.client.get('/product/2')
         self.assertEqual(response.status_code, 404)
@@ -203,6 +211,129 @@ class FlaskClientTestCase(unittest.TestCase):
 
         response = self.client.get(f'/profile/{u.id}/user_products')
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(p.title in response.get_data(
+            as_text=True,
+        ))
 
-        response = self.client.get(f'/profile/{u.id}/create_product')
+    @mock.patch('flask_login.utils._get_user')
+    def test_create_product(self, mock_current_user):
+        u = User(password='cat', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        mock_current_user.return_value = u
+        response = self.client.post(
+            f'/profile/{u.id}/create_product',
+            data={
+                'title': 'title',
+                'price': '100',
+                'description': 'description',
+                'address': 'address',
+            },
+            follow_redirects=True,
+        )
         self.assertEqual(response.status_code, 200)
+        self.assertTrue('title' in response.get_data(
+            as_text=True,
+        ))
+
+        p = Product.query.filter(Product.title == 'title').first()
+        response = self.client.get(f'/product/{p.id}')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(
+            f'/profile/{u.id}/create_product',
+            data={
+                'title': '',
+                'price': '100',
+                'description': 'description',
+                'address': 'address',
+            })
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('flask_login.utils._get_user')
+    def test_edit_product(self, mock_current_user):
+        u = User(password='cat', confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        p = Product(
+            title='title',
+            published=datetime.today(),
+            price='1000',
+            description='description',
+            category='cats',
+            user_id=u.id,
+        )
+        db.session.add(p)
+        db.session.commit()
+        mock_current_user.return_value = u
+
+        response = self.client.get(f'/profile/{u.id}/edit_product/{p.id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('title' in response.get_data(
+            as_text=True,
+        ))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('title' in response.get_data(as_text=True))
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_product/{p.id}',
+            data={
+                'title': 'newtitle',
+                'price': '100',
+                'description': 'description',
+                'address': 'address',
+            },
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('newtitle' in response.get_data(
+            as_text=True,
+        ))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('newtitle' in response.get_data(as_text=True))
+
+        u2 = User(password='cat', confirmed=True)
+        db.session.add(u2)
+        db.session.commit()
+        mock_current_user.return_value = u2
+        response = self.client.get(f'/profile/{u.id}/edit_product/{p.id}')
+        self.assertEqual(response.status_code, 404)
+
+        mock_current_user.return_value = u
+        response = self.client.post(f'/profile/{u.id}/hide_product/{p.id}')
+        self.assertEqual(response.status_code, 302)
+
+        mock_current_user.return_value = u2
+        response = self.client.get(f'/profile/{u.id}/hide_product/{p.id}')
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse('newtitle' in response.get_data(as_text=True))
+
+        mock_current_user.return_value = u
+        response = self.client.post(f'/profile/{u.id}/show_product/{p.id}')
+        self.assertEqual(response.status_code, 302)
+
+        mock_current_user.return_value = u2
+        response = self.client.get(f'/profile/{u.id}/show_product/{p.id}')
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('newtitle' in response.get_data(as_text=True))
+
+        mock_current_user.return_value = u2
+        response = self.client.get(f'/profile/{u.id}/delete_product/{p.id}')
+        self.assertEqual(response.status_code, 404)
+
+        mock_current_user.return_value = u
+        response = self.client.post(f'/profile/{u.id}/delete_product/{p.id}')
+        self.assertEqual(response.status_code, 302)
+        p = Product.query.filter(Product.title == 'newtitle').first()
+        self.assertFalse(p)
+
