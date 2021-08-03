@@ -217,10 +217,29 @@ class FlaskClientTestCase(unittest.TestCase):
 
     @mock.patch('flask_login.utils._get_user')
     def test_create_product(self, mock_current_user):
-        u = User(password='cat', confirmed=True)
+        u = User(password='cat')
         db.session.add(u)
         db.session.commit()
         mock_current_user.return_value = u
+
+        response = self.client.post(
+            f'/profile/{u.id}/create_product',
+            data={
+                'title': 'title',
+                'price': '100',
+                'description': 'description',
+                'address': 'address',
+            },
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('подтвердите аккаунт' in response.get_data(
+            as_text=True,
+        ))
+
+        u.confirmed = True
+        db.session.add(u)
+        db.session.commit()
         response = self.client.post(
             f'/profile/{u.id}/create_product',
             data={
@@ -249,6 +268,20 @@ class FlaskClientTestCase(unittest.TestCase):
                 'address': 'address',
             })
         self.assertEqual(response.status_code, 200)
+
+        u2 = User(password='cat', confirmed=True)
+        db.session.add(u2)
+        db.session.commit()
+        mock_current_user.return_value = u2
+        response = self.client.post(
+            f'/profile/{u.id}/create_product',
+            data={
+                'title': 'title',
+                'price': '100',
+                'description': 'description',
+                'address': 'address',
+            })
+        self.assertEqual(response.status_code, 404)
 
     @mock.patch('flask_login.utils._get_user')
     def test_edit_product(self, mock_current_user):
@@ -370,7 +403,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue('comment' in response.get_data(
             as_text=True,
         ))
-        
+
         response = self.client.post(
             '/product/comment',
             data={
@@ -382,4 +415,3 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue('field is required' in response.get_data(
             as_text=True,
         ))
-        
