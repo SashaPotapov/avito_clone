@@ -194,7 +194,7 @@ class FlaskClientTestCase(unittest.TestCase):
 
     @mock.patch('flask_login.utils._get_user')
     def test_profile_page(self, mock_current_user):
-        u = User(password='cat', confirmed=True)
+        u = User(password='supercat', confirmed=True)
         db.session.add(u)
         db.session.commit()
         mock_current_user.return_value = u
@@ -217,6 +217,111 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
+        response = self.client.get(f'/profile/{u.id}/edit_profile')
+        self.assertEqual(response.status_code, 200)
+
+        u2 = User(password='supercat', confirmed=True)
+        db.session.add(u2)
+        db.session.commit()
+        response = self.client.get(f'/profile/{u2.id}/edit_profile')
+        self.assertEqual(response.status_code, 404)
+        
+        
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_password',
+            data={
+                'password_old': 'supercat',
+                'password_new': 'newsupercat',
+                'pass_conf': 'newsupercat',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(u.verify_password('newsupercat'))
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_password',
+            data={
+                'password_old': 'supercat',
+                'password_new': 'newsupercat',
+                'pass_conf': 'newsupercat',
+            })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            f'/profile/{u2.id}/edit_profile/change_password',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_name',
+            data={
+                'fname_new': 'новоеимя',
+            })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(u.name, 'новоеимя')
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_name',
+            data={
+                'fname_new': 'wrongname',
+            })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            f'/profile/{u2.id}/edit_profile/change_name',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_email',
+            data={
+                'email_new': 'newemail@mail.com',
+            })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            f'/profile/{u2.id}/edit_profile/change_email',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        token = u.generate_email_change_token('newemail@mail.com')
+        response = self.client.get(
+            f'/profile/{u.id}/edit_profile/change_email/{token}',
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(u.email, 'newemail@mail.com')
+
+        token = u.generate_email_change_token('newemail@mail.com')
+        response = self.client.get(
+            f'/profile/{u.id}/edit_profile/change_email/{token}',
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            f'/profile/{u2.id}/edit_profile/change_email/{token}',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_photo',
+            data={
+                'avatar_link': (io.BytesIO(b'abcdef'), 'test.jpg'),
+            },
+            follow_redirects=True,
+            content_type='multipart/form-data',
+        )
+        self.assertEqual(response.status_code, 200)
+        path = f'{self.app.root_path}/static/profile_image'
+        self.assertTrue(u.avatar_link in os.listdir(path))
+        os.remove(f'{path}/{u.avatar_link}')
+
+        response = self.client.get(
+            f'/profile/{u2.id}/edit_profile/change_photo',
+        )
+        self.assertEqual(response.status_code, 404)
+        
     @mock.patch('flask_login.utils._get_user')
     def test_create_product(self, mock_current_user):
         u = User(password='cat')
