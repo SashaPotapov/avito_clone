@@ -1,6 +1,6 @@
-import unittest
 import io
 import os
+import unittest
 from datetime import datetime
 from time import sleep
 from unittest import mock
