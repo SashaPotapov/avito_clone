@@ -1,4 +1,6 @@
 import unittest
+import io
+import os
 from datetime import datetime
 from time import sleep
 from unittest import mock
@@ -310,20 +312,26 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('title' in response.get_data(as_text=True))
 
+        data = {
+            'title': 'newtitle',
+            'price': '100',
+            'description': 'description',
+            'address': 'address',
+        }
+        data['link_photo'] = (io.BytesIO(b'abcdef'), 'test.jpg')
         response = self.client.post(
             f'/profile/{u.id}/edit_product/{p.id}',
-            data={
-                'title': 'newtitle',
-                'price': '100',
-                'description': 'description',
-                'address': 'address',
-            },
+            data=data,
             follow_redirects=True,
+            content_type='multipart/form-data',
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue('newtitle' in response.get_data(
             as_text=True,
         ))
+        path = f'{self.app.root_path}/static/product_image'
+        self.assertTrue(p.link_photo in os.listdir(path))
+        os.remove(f'{path}/{p.link_photo}')
 
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
