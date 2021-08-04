@@ -87,7 +87,7 @@ def change_name(user_id):
         abort(404)
     form = ChangeNameForm()
     if form.validate_on_submit():
-        user.name = f'{form.fname_new.data} {form.lname_new.data}'
+        user.name = form.fname_new.data + form.lname_new.data
         db.session.add(user)
         db.session.commit()
         flash('Ваше имя успешно обновлено', 'success')
@@ -139,11 +139,11 @@ def change_email_confirmation(user_id, token):
         flash_message = 'Ваш email успешно обновлен'
         flash(flash_message, 'success')
     else:
-        lash_message = (
+        flash_message = (
             'Ссылка на подтверждение истекла. '
             + 'Пожалуйста, отправьте подтверждение еще раз'
         )
-        flash(lash_message, 'warning')
+        flash(flash_message, 'warning')
     return redirect(url_for('profile.edit_profile', user_id=user.id))
 
 
