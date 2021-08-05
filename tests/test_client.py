@@ -27,25 +27,25 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Авитоклон' in response.get_data(as_text=True))
 
-    def test_register_and_login(self):
+    def test_register(self):
         r = Role(name='User')
         db.session.add(r)
         db.session.commit()
 
         response = self.client.post('/auth/registration', data={
             'email': 'email@mail.com',
-            'fname': 'Юлик',
-            'password': 'supercat',
-            'pass_conf': 'supercat',
+            'fname': 'Имя',
+            'password': 'password',
+            'pass_conf': 'password',
         })
         self.assertEqual(response.status_code, 302)
-        
-        # test registration with wrong name
+
+        # Test registration with wrong name
         response = self.client.post('/auth/registration', data={
             'email': 'email@mail.com',
             'fname': 'wrongname',
-            'password': 'supercat',
-            'pass_conf': 'supercat',
+            'password': 'password',
+            'pass_conf': 'password',
         })
         self.assertEqual(response.status_code, 200)
         self.assertTrue('буквы русского алфавита' in response.get_data(
@@ -54,18 +54,18 @@ class FlaskClientTestCase(unittest.TestCase):
 
     def test_login(self):
         u = User(
-            password='supercat',
+            password='password',
             email='email@mail.com',
         )
         db.session.add(u)
         db.session.commit()
 
-        # test login with wrong name
+        # Test login with wrong email
         response = self.client.post(
             '/auth/login',
             data={
                 'email': 'wrongemail@mail.com',
-                'password': 'supercat',
+                'password': 'password',
             })
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Неправильный e-mail' in response.get_data(
@@ -76,7 +76,7 @@ class FlaskClientTestCase(unittest.TestCase):
             '/auth/login',
             data={
                 'email': 'email@mail.com',
-                'password': 'supercat',
+                'password': 'password',
             })
         self.assertEqual(response.status_code, 302)
 
@@ -94,7 +94,7 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
-        # test expired token when authenticated
+        # Test expired token when authenticated
         token = u.generate_confirmation_token(expiration=1)
         sleep(2)
         response = self.client.get(
@@ -139,7 +139,7 @@ class FlaskClientTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        # test confirmation when not authenticated
+        # Test confirmation when not authenticated
         token = u.generate_confirmation_token()
         u.confirmed = False
         db.session.add(u)
@@ -151,7 +151,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.request.path, '/auth/login')
 
-        # test expired token when not authenticated
+        # Test expired token when not authenticated
         token = u.generate_confirmation_token(expiration=1)
         sleep(2)
         response = self.client.get(
@@ -164,7 +164,7 @@ class FlaskClientTestCase(unittest.TestCase):
         ))
         self.assertEqual(response.request.path, '/index')
 
-        # test successful confirmation when not authenticated
+        # Test successful confirmation when not authenticated
         token = u.generate_confirmation_token()
         response = self.client.get(
             f'/auth/confirm/{token}',
@@ -194,7 +194,7 @@ class FlaskClientTestCase(unittest.TestCase):
 
     @mock.patch('flask_login.utils._get_user')
     def test_profile_page(self, mock_current_user):
-        u = User(password='supercat', confirmed=True)
+        u = User(password='password', confirmed=True)
         db.session.add(u)
         db.session.commit()
         mock_current_user.return_value = u
@@ -220,30 +220,29 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(f'/profile/{u.id}/edit_profile')
         self.assertEqual(response.status_code, 200)
 
-        u2 = User(password='supercat', confirmed=True)
+        u2 = User(password='password', confirmed=True)
         db.session.add(u2)
         db.session.commit()
         response = self.client.get(f'/profile/{u2.id}/edit_profile')
         self.assertEqual(response.status_code, 404)
-        
-        
-        response = self.client.post(
-            f'/profile/{u.id}/edit_profile/change_password',
-            data={
-                'password_old': 'supercat',
-                'password_new': 'newsupercat',
-                'pass_conf': 'newsupercat',
-            },
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(u.verify_password('newsupercat'))
 
         response = self.client.post(
             f'/profile/{u.id}/edit_profile/change_password',
             data={
-                'password_old': 'supercat',
-                'password_new': 'newsupercat',
-                'pass_conf': 'newsupercat',
+                'password_old': 'password',
+                'password_new': 'newpassword',
+                'pass_conf': 'newpassword',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(u.verify_password('newpassword'))
+
+        response = self.client.post(
+            f'/profile/{u.id}/edit_profile/change_password',
+            data={
+                'password_old': 'wrongpassword',
+                'password_new': 'newpassword',
+                'pass_conf': 'newpassword',
             })
         self.assertEqual(response.status_code, 200)
 
@@ -321,14 +320,15 @@ class FlaskClientTestCase(unittest.TestCase):
             f'/profile/{u2.id}/edit_profile/change_photo',
         )
         self.assertEqual(response.status_code, 404)
-        
+
     @mock.patch('flask_login.utils._get_user')
     def test_create_product(self, mock_current_user):
-        u = User(password='cat')
+        u = User(password='password')
         db.session.add(u)
         db.session.commit()
         mock_current_user.return_value = u
 
+        # Test create product with unconfirmed account
         response = self.client.post(
             f'/profile/{u.id}/create_product',
             data={
@@ -366,6 +366,7 @@ class FlaskClientTestCase(unittest.TestCase):
         response = self.client.get(f'/product/{p.id}')
         self.assertEqual(response.status_code, 200)
 
+        # Test create product with errors
         response = self.client.post(
             f'/profile/{u.id}/create_product',
             data={
@@ -376,7 +377,7 @@ class FlaskClientTestCase(unittest.TestCase):
             })
         self.assertEqual(response.status_code, 200)
 
-        u2 = User(password='cat', confirmed=True)
+        u2 = User(password='password', confirmed=True)
         db.session.add(u2)
         db.session.commit()
         mock_current_user.return_value = u2
@@ -392,7 +393,7 @@ class FlaskClientTestCase(unittest.TestCase):
 
     @mock.patch('flask_login.utils._get_user')
     def test_edit_product(self, mock_current_user):
-        u = User(password='cat', confirmed=True)
+        u = User(password='password', confirmed=True)
         db.session.add(u)
         db.session.commit()
         p = Product(
@@ -412,10 +413,6 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue('title' in response.get_data(
             as_text=True,
         ))
-
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('title' in response.get_data(as_text=True))
 
         data = {
             'title': 'newtitle',
@@ -442,7 +439,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('newtitle' in response.get_data(as_text=True))
 
-        u2 = User(password='cat', confirmed=True)
+        u2 = User(password='password', confirmed=True)
         db.session.add(u2)
         db.session.commit()
         mock_current_user.return_value = u2
@@ -480,19 +477,21 @@ class FlaskClientTestCase(unittest.TestCase):
         mock_current_user.return_value = u
         response = self.client.post(f'/profile/{u.id}/delete_product/{p.id}')
         self.assertEqual(response.status_code, 302)
-        p = Product.query.filter(Product.title == 'newtitle').first()
-        self.assertFalse(p)
+        product_exists = Product.query.filter(
+            Product.title == 'newtitle',
+        ).first()
+        self.assertFalse(product_exists)
 
     @mock.patch('app.main.views.get_redirect_target')
     @mock.patch('flask_login.utils._get_user')
     def test_comments(self, mock_current_user, mock_redirect_target):
-        u = User(password='cat', confirmed=True)
+        u = User(password='password', confirmed=True)
         db.session.add(u)
         db.session.commit()
         p = Product(
             title='title',
             published=datetime.today(),
-            price='1000',
+            price='100',
             description='description',
             category='cats',
             user_id=u.id,
@@ -517,6 +516,7 @@ class FlaskClientTestCase(unittest.TestCase):
             as_text=True,
         ))
 
+        # Test create comment with errors
         response = self.client.post(
             '/product/comment',
             data={
