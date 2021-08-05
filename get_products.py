@@ -1,170 +1,284 @@
-import requests
 import logging
 import re
-from datetime import datetime
-from bs4 import BeautifulSoup
 from time import sleep
 
-from app import create_app
-from app.models import Role, db, Product, User
-from format_published import format_published
+import requests
+from bs4 import BeautifulSoup
 
+from app import create_app
+from app.models import Product, Role, User, db
+from format_published import format_published
 
 logging.basicConfig(filename='parser.log', filemode='w', level=logging.INFO)
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36",
+    'User-Agent': (
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) '
+        + 'AppleWebKit/537.36 (KHTML, like Gecko) '
+        + 'Chrome/90.0.4430.85 Safari/537.36'
+    ),
 }
 
-def get_html(page=1):
-    '''Функция get_html возвращает первую страницу, если не возникает сетевых ошибок'''
-    try:
-        url = f"https://www.avito.ru/moskva/planshety_i_elektronnye_knigi/elektronnye_knigi-ASgBAgICAUSYAohO?cd=1&p={page}"
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        return response.text
 
-    except(ConnectionError, requests.RequestException, ValueError):
-        logging.error(f'Ошибка get_html {response.status_code}')
-        return False
+def save_parsed_data():
+    html_of_products = get_html_of_products()
+    for html_num, html in enumerate(html_of_products):
+        soup = BeautifulSoup(html, 'lxml')
+        save_user_info(soup)
+        save_product_info(soup)
+        logging.info(f'{html_num+1} данные объявления получены')
 
-    except Exception as er:
-        logging.error(f'Ошибка get_html {er}')
-        return False
+
+def get_html_of_products():
+    """Возвращает список html-страниц по каждому товару категории."""
+    links = get_products_links()
+    html_of_products = []
+    for link_num, link in enumerate(links):
+        try:
+            response = requests.get(link, headers=headers)
+        except requests.exceptions.RequestException as er:
+            logging.error(f'Ошибка get_product_html {er}')
+            raise er
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_er:
+            logging.error(f'Ошибка get_product_html {http_er}')
+            raise http_er
+
+        html_of_products.append(response.text)
+        logging.info(f'{link_num+1} {link} html страницы добавлен в список')
+        sleep(9)
+    return html_of_products
+
 
 def get_products_links():
-    '''Функция get_products_links возвращает список ссылок на все товары категории'''
-    main_page = get_html()
-    if main_page:
-        soup = BeautifulSoup(main_page, 'lxml')
-        # Определяет количество страниц товаров данной категории
-        try:
-            count_pages = int(soup.find('div', class_="pagination-root-2oCjZ").find_all('span', class_="pagination-item-1WyVp")[-2].text)
-        except AttributeError:
-            end_page = 1
+    """Возвращает список ссылок на все товары категории."""
+    soup = BeautifulSoup(get_html(), 'lxml')
+    links = []
+    for page in range(1, get_end_page(soup) + 1):
+        soup = BeautifulSoup(get_html(page), 'lxml')
+        product_card = soup.find_all('div', class_='iva-item-content-m2FiN')
+        for product in product_card:
+            links.append(get_product_link(product))
 
-        if count_pages > 5:
-            end_page = 5
-        else:
-            end_page = count_pages
+        logging.info(f'{page}/{get_end_page(soup)} страниц обработаны')
+    logging.info(f'{len(links)} объявлений найдено')
+    return links
 
-        logging.info(f'{end_page} страниц для парсинга')
-        links = []
-        pages_gen = range(1, end_page + 1)
-        for p in pages_gen:
-            page = get_html(p)
-            soup = BeautifulSoup(page, 'lxml')
-            item_card = soup.find_all('div', class_="iva-item-content-m2FiN")
-            for item in item_card:
-                link = f"https://www.avito.ru{item.find('div', class_='iva-item-titleStep-2bjuh').find('a').get('href')}"
-                links.append(link)
-            logging.info(f'{p}/{end_page} страниц обработаны')
-        logging.info(f'{len(links)} объявлений найдено')
-        return links
-    return False
 
-def get_product_html():
-    '''Функция get_product_html возвращает список html-страниц по каждому товару категории'''
-    links = get_products_links()
-    if links:
-        html_of_products = []
-        for link_num, link in enumerate(links):
-            try:
-                response = requests.get(link, headers=headers)
-                response.raise_for_status()
-            except(requests.RequestException, ValueError):
-                logging.error(f'Ошибка get_product_html {response.status_code}')
-                continue
-            except Exception as er:
-                logging.error(f'Ошибка get_product_html {er}')
-                continue
-            
-            if response.status_code == '429':
-                logging.error(f'Бан от авито {response.status_code}')
-                raise requests.RequestException(f'Бан от авито {response.status_code}')
+def get_html(page=1):
+    """Возвращает html страницы, если не возникает сетевых ошибок."""
+    url = (
+        'https://www.avito.ru/moskva/planshety_i_elektronnye_knigi/'
+        + f'elektronnye_knigi-ASgBAgICAUSYAohO?cd=1&p={page}'
+    )
 
-            html_of_products.append(response.text)
-            logging.info(f'{link_num+1} {link} html страницы добавлен в список')
-            sleep(9)
-        return html_of_products
-    return False
+    try:
+        response = requests.get(url, headers=headers)
+    except requests.exceptions.RequestException as er:
+        logging.error(f'Ошибка get_html {er}')
+        raise er
 
-def get_product_info():
-    '''Функция get_product_info выводит информацию по каждому товару'''
-    html_of_products = get_product_html()
-    if html_of_products:
-        for html_num, html in enumerate(html_of_products):
-            soup = BeautifulSoup(html, 'lxml')
-            # Использую regex для того чтобы найти id
-            avito_user_id_regex = re.compile(r'((profile\?id=)|(shopId=))(\d+)&')
-            avito_user_id_url = soup.find('div', class_="seller-info-name js-seller-info-name").find('a')['href']
-            logging.info(avito_user_id_url)
-            avito_user_id = avito_user_id_regex.search(avito_user_id_url).group(4)
-            avito_user_name = soup.find('div', class_="seller-info-name js-seller-info-name").find('a').text.strip()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as http_er:
+        logging.error(f'Ошибка get_html {http_er}')
+        raise http_er
 
-            email = f'{avito_user_id}@avito.ru'
+    return response.text
 
-            title = soup.find('div', class_="item-view-content").find('span', class_="title-info-title-text").text.strip()
-            avito_id = soup.find('div', class_="item-view-content-right").find('div', class_="item-view-search-info-redesign").find('span').text.strip()[2:]
 
-            published = soup.find('div', class_="title-info-actions").find('div', class_="title-info-metadata-item-redesign").text.strip()
-            published = format_published(published)
+def get_end_page(soup):
+    try:
+        number_pages = int(
+            soup.find(
+                'div',
+                class_='pagination-root-2oCjZ',
+            ).find_all(
+                'span',
+                class_='pagination-item-1WyVp',
+            )[-2].text,
+        )
+    except AttributeError:
+        end_page = 1
+        number_pages = end_page
 
-            link_photo = soup.find('div', class_="item-view-content").find('div', class_="gallery-img-frame js-gallery-img-frame").get('data-url').strip()
+    if number_pages > 5:
+        end_page = 5
+    else:
+        end_page = number_pages
 
-            try:
-                price = soup.find('div', class_="item-view-content-right").find('span', class_="js-item-price").text.strip().split()
-                price = ''.join(price)
-            except AttributeError:
-                price = 0
-                
-            category = soup.find('div', class_="item-navigation").find_all('span', itemprop="itemListElement")[-1].find('span').text.strip()
+    logging.info(f'{end_page} страниц для парсинга')
+    return end_page
 
-            try:
-                address = soup.find('div', class_="item-view-block item-view-map js-item-view-map").find('span', class_="item-address__string").text.strip()
-            except AttributeError:
-                address = '' 
-            try:
-                description = soup.find('div', class_="item-description").text.strip()
-            except AttributeError:
-                description = ''
-            
-            logging.info(f'{html_num+1} данные объявления получены')
 
-            save_user_info(email, avito_user_name, address) 
-            save_product_info(title, avito_id, published, link_photo, address, price, description, category, email)
+def get_product_link(product):
+    product_href = product.find(
+        'div',
+        class_='iva-item-titleStep-2bjuh',
+    ).find('a').get('href')
 
-        logging.info(f'Все данные получены')
-        return
+    return (
+        'https://www.avito.ru'
+        + f'{product_href}'
+    )
 
-    logging.error('get_product_info ошибка работы парсера')
-    return None
-    
-def save_user_info(email, avito_user_name, address):
-    '''Функция save_product_info сохраняет инфо юзера в бд'''
+
+def save_user_info(soup):
+    """Функция save_product_info сохраняет инфо юзера в бд"""
+    email = f'{get_user_avito_id(soup)}@avito.ru'
     user_exists = User.query.filter(User.email == email).count()
 
     if not user_exists:
-        user = User(email=email, name=avito_user_name, address=address,\
-                    role_id=Role.query.filter_by(name='AvitoUser').first().id)
+        user = User(
+            email=email,
+            name=get_user_name(soup),
+            address=get_product_address(soup),
+            role_id=Role.query.filter_by(name='AvitoUser').first().id,
+        )
         db.session.add(user)
         db.session.commit()
-        return
+
     logging.info('Данные юзера уже есть в бд')
 
-def save_product_info(title, avito_id, published, link_photo, address, price, description, category, email):
-    '''Функция save_product_info сохраняет инфо продукта в бд'''
-    product_exists = Product.query.filter(Product.avito_id == avito_id).count()
-    
+
+def get_user_avito_id(soup):
+    avito_user_id_regex = re.compile(r'((profile\?id=)|(shopId=))(\d+)&')
+    avito_user_id_url = soup.find(
+        'div',
+        class_='seller-info-name js-seller-info-name',
+    ).find('a')['href']
+    logging.info(avito_user_id_url)
+    return avito_user_id_regex.search(avito_user_id_url).group(4)
+
+
+def get_user_name(soup):
+    return soup.find(
+        'div',
+        class_='seller-info-name js-seller-info-name',
+    ).find('a').text.strip()
+
+
+def save_product_info(soup):
+    """Функция save_product_info сохраняет инфо продукта в бд"""
+    product_exists = Product.query.filter(
+        Product.avito_id == get_product_id(soup),
+    ).count()
+
     if not product_exists:
-        product = Product(title=title, avito_id=avito_id, published=published, link_photo=link_photo, address=address, price=price,\
-                            description=description, category=category, user_id=User.query.filter_by(email=email).first().id)
+        product = Product(
+            title=get_product_title(soup),
+            avito_id=get_product_id(soup),
+            published=get_product_date(soup),
+            link_photo=get_product_photo(soup),
+            address=get_product_address(soup),
+            price=get_product_price(soup),
+            description=get_product_description(soup),
+            category=get_product_category(soup),
+            user_id=User.query.filter_by(
+                email=f'{get_user_avito_id(soup)}@avito.ru',
+            ).first().id,
+        )
         db.session.add(product)
         db.session.commit()
-        return
+
     logging.info('Объявление уже есть в бд')
 
-if __name__ == "__main__":
+
+def get_product_title(soup):
+    return soup.find(
+        'div',
+        class_='item-view-content',
+    ).find(
+        'span',
+        class_='title-info-title-text',
+    ).text.strip()
+
+
+def get_product_id(soup):
+    return soup.find(
+        'div',
+        class_='item-view-content-right',
+    ).find(
+        'div',
+        class_='item-view-search-info-redesign',
+    ).find('span').text.strip()[2:]
+
+
+def get_product_date(soup):
+    published = soup.find(
+        'div',
+        class_='title-info-actions',
+    ).find(
+        'div',
+        class_='title-info-metadata-item-redesign',
+    ).text.strip()
+    return format_published(published)
+
+
+def get_product_photo(soup):
+    return soup.find(
+        'div',
+        class_='item-view-content',
+    ).find(
+        'div',
+        class_='gallery-img-frame js-gallery-img-frame',
+    ).get('data-url').strip()
+
+
+def get_product_price(soup):
+    try:
+        price = soup.find(
+            'div',
+            class_='item-view-content-right',
+        ).find(
+            'span',
+            class_='js-item-price',
+        ).text.strip().split()
+    except AttributeError:
+        price = 0
+    else:
+        price = ''.join(price)
+    return price
+
+
+def get_product_category(soup):
+    return soup.find(
+        'div',
+        class_='item-navigation',
+    ).find_all(
+        'span',
+        itemprop='itemListElement',
+    )[-1].find('span').text.strip()
+
+
+def get_product_address(soup):
+    try:
+        address = soup.find(
+            'div',
+            class_='item-view-block item-view-map js-item-view-map',
+        ).find(
+            'span',
+            class_='item-address__string',
+        ).text.strip()
+    except AttributeError:
+        address = ''
+    return address
+
+
+def get_product_description(soup):
+    try:
+        description = soup.find(
+            'div',
+            class_='item-description',
+        ).text.strip()
+    except AttributeError:
+        description = ''
+    return description
+
+
+if __name__ == '__main__':
     app = create_app('default')
     with app.app_context():
-        get_product_info()
+        save_parsed_data()

@@ -1,11 +1,9 @@
+from config import config
+from elasticsearch import Elasticsearch
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
 from flask_login import LoginManager
 from flask_mail import Mail
-from elasticsearch import Elasticsearch
-from config import config
-
+from flask_sqlalchemy import SQLAlchemy
 
 mail = Mail()
 db = SQLAlchemy()
@@ -14,6 +12,7 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = u"Пожалуйста, авторизуйтесь"
 login_manager.login_message_category = "info"
 mail = Mail()
+
 
 def create_app(config_name):
     app = Flask(__name__)

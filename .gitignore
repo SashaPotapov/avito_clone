@@ -1,6 +1,9 @@
-venv/
+.pytest_cache/
 .vscode/
+venv/
 __pycache__/
+tmp/
+htmlcov/
 parser.log
 config.py
 .DS_Store
