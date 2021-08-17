@@ -7,6 +7,5 @@ htmlcov/
 parser.log
 config.py
 .DS_Store
-app/static/
 .gitsecret/keys/random_seed
 !*.secret
